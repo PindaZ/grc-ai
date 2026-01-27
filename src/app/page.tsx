@@ -19,11 +19,15 @@ import {
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { useApp } from '@/context/AppContext';
-import { controlActivities, risks, controls, evidence, changeRequests } from '@/data/fixtures';
+
 import { allPendingFindings, uarFindings, soc2Findings, regulatoryFindings, contractFindings } from '@/data/aiFindings';
 import { MultiSkillFindingsSummary } from '@/components/organisms/AIFindingsBanner';
 import { GlassCard } from '@/components/ui/GlassCard';
 import { AnimatedChart } from '@/components/visuals/AnimatedChart';
+import { RoleSwitcher } from '@/components/ui/RoleSwitcher';
+import { RiskOwnerDashboard } from '@/components/dashboards/RiskOwnerDashboard';
+import { ControlOwnerDashboard } from '@/components/dashboards/ControlOwnerDashboard';
+import { AuditorDashboard } from '@/components/dashboards/AuditorDashboard';
 
 const useStyles = makeStyles({
   page: {
@@ -157,19 +161,7 @@ export default function HomePage() {
   const styles = useStyles();
   const { currentRole } = useApp();
 
-  const myTasks = controlActivities.filter(a => a.status !== 'done').slice(0, 4);
-  const highRisks = risks.filter(r => r.impact >= 4).slice(0, 3);
-  const pendingEvidence = evidence.filter(e => e.status !== 'reviewed').slice(0, 3);
-
-  // Fake chart data generation
-  const taskTrend = [12, 15, 13, 18, 16, 20, 18, 24, 22, 28];
-  const findingTrend = [5, 8, 12, 15, 25, 22, 30, 28, 35, 32];
-  const complianceTrend = [85, 86, 86, 87, 86, 87, 87, 88, 87, 87];
-
-  // Count findings
-  const highFindings = allPendingFindings.filter(f => f.severity === 'high').length;
-  const totalFindings = allPendingFindings.length;
-
+  // AI Findings Summary Data (kept global for now or could be moved to specific dashboards)
   const findingsSummary = [
     { skillName: 'User Access Review', count: uarFindings.filter(f => f.status === 'pending').length, highCount: uarFindings.filter(f => f.status === 'pending' && f.severity === 'high').length, path: '/automation/uar' },
     { skillName: 'SOC2 Parser', count: soc2Findings.filter(f => f.status === 'pending').length, highCount: soc2Findings.filter(f => f.status === 'pending' && f.severity === 'high').length, path: '/automation/soc2' },
@@ -177,160 +169,40 @@ export default function HomePage() {
     { skillName: 'Contract Analysis', count: contractFindings.filter(f => f.status === 'pending').length, highCount: contractFindings.filter(f => f.status === 'pending' && f.severity === 'high').length, path: '/automation/contracts' },
   ].filter(f => f.count > 0);
 
+  const getRoleLabel = (role: string) => {
+    switch (role) {
+      case 'risk-owner': return 'Risk Manager';
+      case 'control-owner': return 'Control Owner';
+      case 'auditor': return 'Internal Auditor';
+      default: return 'User';
+    }
+  };
+
   return (
     <div className={styles.page}>
       <header className={styles.header}>
         <div>
-          <Text className={styles.title}>Welcome back, Auditor</Text>
-          <Text className={styles.subtitle}>Here is your compliance posture overview for today.</Text>
+          <Text className={styles.title}>Welcome back, {getRoleLabel(currentRole)}</Text>
+          <Text className={styles.subtitle}>
+            {currentRole === 'risk-owner' && "Here is the current risk landscape and exposure analysis."}
+            {currentRole === 'control-owner' && "You have pending actions and evidence uploads requiring attention."}
+            {currentRole === 'auditor' && "Overview of compliance gaps, findings, and audit schedules."}
+          </Text>
         </div>
-        <Button appearance="primary" shape="circular" icon={<SparkleRegular />}>Ask AI Copilot</Button>
+        <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
+          <RoleSwitcher />
+          <Button appearance="primary" shape="circular" icon={<SparkleRegular />}>Ask AI Copilot</Button>
+        </div>
       </header>
 
-      {/* AI Summary Banner */}
+      {/* AI Summary Banner - Visible to all for "Wow" factor */}
       {findingsSummary.length > 0 && <MultiSkillFindingsSummary findings={findingsSummary} />}
 
-      <motion.div
-        className={styles.bentoGrid}
-        variants={containerVariants}
-        initial="hidden"
-        animate="show"
-      >
-        {/* Widget 1: My Tasks */}
-        <GlassCard className={styles.widgetContent}>
-          <div className={styles.widgetHeader}>
-            <div className={styles.iconBox}><TaskListSquareLtrRegular fontSize={24} /></div>
-            <Button appearance="transparent" icon={<MoreHorizontalRegular />} />
-          </div>
-          <div style={{ position: 'relative', zIndex: 2 }}>
-            <div className={styles.value}>{myTasks.length}</div>
-            <div className={styles.label}>Pending Actions</div>
-          </div>
-          <AnimatedChart data={taskTrend} color="#0078d4" height={100} />
-        </GlassCard>
-
-        {/* Widget 2: AI Findings (Featured) */}
-        <GlassCard variant="featured" className={styles.widgetContent}>
-          <div className={styles.widgetHeader}>
-            <div className={styles.iconBox} style={{ background: 'rgba(255, 99, 88, 0.2)', color: '#ff6358' }}><SparkleRegular fontSize={24} /></div>
-            <Badge appearance="tint" color="danger">Action Required</Badge>
-          </div>
-          <div style={{ position: 'relative', zIndex: 2 }}>
-            <div className={styles.value} style={{ color: '#ff6358' }}>{totalFindings}</div>
-            <div className={styles.label}>AI Issues Found</div>
-          </div>
-          <AnimatedChart data={findingTrend} color="#ff6358" height={100} />
-        </GlassCard>
-
-        {/* Widget 3: Compliance Score */}
-        <GlassCard className={styles.widgetContent}>
-          <div className={styles.widgetHeader}>
-            <div className={styles.iconBox} style={{ background: 'rgba(16, 186, 128, 0.2)', color: '#10ba80' }}><ShieldCheckmarkRegular fontSize={24} /></div>
-          </div>
-          <div style={{ position: 'relative', zIndex: 2 }}>
-            <div className={styles.value} style={{ color: '#10ba80' }}>87%</div>
-            <div className={styles.label}>Audit Readiness</div>
-          </div>
-          <AnimatedChart data={complianceTrend} color="#10ba80" height={100} />
-        </GlassCard>
-
-        {/* Widget 4: Deadlines */}
-        <GlassCard className={styles.widgetContent}>
-          <div className={styles.widgetHeader}>
-            <div className={styles.iconBox}><CalendarRegular fontSize={24} /></div>
-          </div>
-          <div style={{ position: 'relative', zIndex: 2 }}>
-            <div className={styles.value}>4</div>
-            <div className={styles.label}>Due This Week</div>
-          </div>
-          <div style={{ height: '60px' }}></div> {/* Spacer instead of chart */}
-        </GlassCard>
-
-        {/* Large Block 1: High Priority Risks */}
-        <GlassCard className={styles.colSpan2} style={{ minHeight: '300px' }}>
-          <div className={styles.sectionTitle}>
-            High Priority Risks
-            <Badge appearance="outline" color="warning">{highRisks.length}</Badge>
-          </div>
-          <div className={styles.listContainer}>
-            {highRisks.map(risk => (
-              <div key={risk.id} className={styles.listItem}>
-                <div>
-                  <Text weight="semibold" style={{ display: 'block', color: '#fff' }}>{risk.title}</Text>
-                  <Text size={200} style={{ color: 'rgba(255,255,255,0.5)' }}>Values: ${risk.impact}M exposure</Text>
-                </div>
-                <div style={{ textAlign: 'right' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '6px' }}>
-                    <span className={styles.statusDot} style={{ background: '#fce100' }}></span>
-                    <Text size={200} style={{ color: '#fce100' }}>{risk.status}</Text>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-          <Link href="/risks" style={{ display: 'inline-block', marginTop: '16px' }}>
-            <Button appearance="subtle" style={{ color: '#0078d4' }}>View Risk Register</Button>
-          </Link>
-        </GlassCard>
-
-        {/* Large Block 2: Pending Evidence */}
-        <GlassCard className={styles.colSpan2} style={{ minHeight: '300px' }}>
-          <div className={styles.sectionTitle}>
-            Pending Evidence Review
-          </div>
-          <div className={styles.listContainer}>
-            {pendingEvidence.map(ev => (
-              <div key={ev.id} className={styles.listItem}>
-                <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
-                  <Avatar name={ev.assignedTo} size={24} />
-                  <div>
-                    <Text weight="semibold" style={{ display: 'block', color: '#fff' }}>{ev.title}</Text>
-                    <Text size={200} style={{ color: 'rgba(255,255,255,0.5)' }}>{ev.fileName}</Text>
-                  </div>
-                </div>
-                <Link href="/evidence">
-                  <Button size="small">Review</Button>
-                </Link>
-              </div>
-            ))}
-          </div>
-          <Link href="/evidence" style={{ display: 'inline-block', marginTop: '16px' }}>
-            <Button appearance="subtle" style={{ color: '#0078d4' }}>Go to Evidence Locker</Button>
-          </Link>
-        </GlassCard>
-
-        {/* Large Block 3: Change Requests */}
-        <GlassCard className={styles.colSpan2} style={{ minHeight: '300px' }}>
-          <div className={styles.sectionTitle}>
-            Change Management
-            <Badge appearance="outline" color="important">{changeRequests.filter(c => c.status === 'pending-approval').length}</Badge>
-          </div>
-          <div className={styles.listContainer}>
-            {changeRequests.map(cr => (
-              <div key={cr.id} className={styles.listItem}>
-                <div>
-                  <Text weight="semibold" style={{ display: 'block', color: '#fff' }}>{cr.title}</Text>
-                  <Text size={200} style={{ color: 'rgba(255,255,255,0.5)' }}>{cr.id} • {cr.type} • Risk: {cr.riskLevel}</Text>
-                </div>
-                <div style={{ textAlign: 'right' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '6px' }}>
-                    <Badge
-                      appearance="filled"
-                      color={cr.status === 'approved' ? 'success' : cr.status === 'pending-approval' ? 'warning' : 'brand'}
-                    >
-                      {cr.status}
-                    </Badge>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-          <Link href="/changes" style={{ display: 'inline-block', marginTop: '16px' }}>
-            <Button appearance="subtle" style={{ color: '#0078d4' }}>View Change Board</Button>
-          </Link>
-        </GlassCard>
-
-      </motion.div>
+      <div style={{ marginTop: '24px' }}>
+        {currentRole === 'risk-owner' && <RiskOwnerDashboard />}
+        {currentRole === 'control-owner' && <ControlOwnerDashboard />}
+        {currentRole === 'auditor' && <AuditorDashboard />}
+      </div>
     </div>
   );
 }
