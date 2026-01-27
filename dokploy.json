@@ -8,6 +8,7 @@
         "name": "GRC App",
         "description": "Next.js GRC Application",
         "dockerfile": "Dockerfile",
+        "startCommand": "node server.js",
         "port": 3000,
         "branch": "main",
         "environment": {
