@@ -8,8 +8,6 @@
         "name": "GRC App",
         "description": "Next.js GRC Application",
         "dockerfile": "Dockerfile",
-        "buildCommand": "npm ci && npm run build",
-        "startCommand": "npm start",
         "port": 3000,
         "branch": "main",
         "environment": {
