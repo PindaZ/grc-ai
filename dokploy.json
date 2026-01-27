@@ -1,0 +1,27 @@
+{
+  "app": {
+    "name": "GRC-AI",
+    "description": "Compliance Automation Platform - GRC App",
+    "services": [
+      {
+        "id": "grc-app",
+        "name": "GRC App",
+        "description": "Next.js GRC Application",
+        "dockerfile": "Dockerfile",
+        "buildCommand": "npm ci && npm run build",
+        "startCommand": "npm start",
+        "port": 3000,
+        "branch": "main",
+        "environment": {
+          "NODE_ENV": "production"
+        },
+        "healthCheck": {
+          "path": "/",
+          "interval": 30,
+          "timeout": 3,
+          "retries": 3
+        }
+      }
+    ]
+  }
+}
