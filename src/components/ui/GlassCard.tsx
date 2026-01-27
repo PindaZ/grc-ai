@@ -6,47 +6,44 @@ import React from 'react';
 
 const useStyles = makeStyles({
     card: {
-        background: 'var(--glass-bg)',
-        backdropFilter: 'blur(12px)',
-        WebkitBackdropFilter: 'blur(12px)', // Safari support
-        ...shorthands.border('1px', 'solid', 'var(--glass-border)'),
+        backgroundColor: tokens.colorNeutralBackgroundAlpha2, // Adaptive semi-transparent background
+        backdropFilter: 'blur(16px)',
+        WebkitBackdropFilter: 'blur(16px)',
+        ...shorthands.border('1px', 'solid', tokens.colorNeutralStrokeSubtle),
         ...shorthands.borderRadius('16px'),
         ...shorthands.padding(tokens.spacingHorizontalL),
-        boxShadow: '0 4px 24px rgba(0, 0, 0, 0.2)',
-        transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+        boxShadow: tokens.shadow8, // Adaptive shadow
+        transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
         position: 'relative',
         overflow: 'hidden',
 
         '&:hover': {
-            background: 'rgba(255, 255, 255, 0.07)',
-            ...shorthands.borderColor('rgba(255, 255, 255, 0.15)'),
-            boxShadow: '0 8px 32px rgba(0, 0, 0, 0.3)',
-            transform: 'translateY(-2px)',
-        },
-
-        '&::before': {
-            content: '""',
-            position: 'absolute',
-            top: 0,
-            left: '-100%',
-            width: '100%',
-            height: '100%',
-            background: 'linear-gradient(90deg, transparent, var(--glass-shine), transparent)',
-            transition: 'left 0.5s ease',
-            pointerEvents: 'none',
-        },
-        '&:hover::before': {
-            left: '100%',
+            backgroundColor: tokens.colorNeutralBackgroundAlpha,
+            ...shorthands.borderColor(tokens.colorNeutralStroke1),
+            boxShadow: tokens.shadow16,
+            transform: 'translateY(-4px)',
         },
     },
     featured: {
-        background: 'linear-gradient(145deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.01) 100%)',
-        ...shorthands.border('1px', 'solid', 'rgba(0, 120, 212, 0.3)'),
-        boxShadow: '0 4px 30px rgba(0, 120, 212, 0.15)',
+        background: 'linear-gradient(145deg, rgba(23, 171, 218, 0.08) 0%, rgba(0, 112, 173, 0.03) 100%)',
+        ...shorthands.border('1px', 'solid', 'rgba(23, 171, 218, 0.2)'),
+        boxShadow: '0 4px 30px rgba(0, 112, 173, 0.1)',
         '&:hover': {
-            boxShadow: '0 8px 40px rgba(0, 120, 212, 0.25)',
-            ...shorthands.borderColor('rgba(0, 120, 212, 0.5)'),
+            boxShadow: '0 12px 60px rgba(0, 112, 173, 0.2)',
+            ...shorthands.borderColor('rgba(23, 171, 218, 0.4)'),
         },
+        /* Glow effect on featured card corners */
+        '&::after': {
+            content: '""',
+            position: 'absolute',
+            top: '-50%',
+            left: '-50%',
+            width: '200%',
+            height: '200%',
+            background: 'radial-gradient(circle at center, rgba(23, 171, 218, 0.05), transparent 70%)',
+            pointerEvents: 'none',
+            zIndex: -1,
+        }
     },
 });
 

@@ -1,5 +1,5 @@
 
-import { Requirement, Risk, Control, ControlActivity, Evidence, SkillDefinition, AutomationRecipe, AutomationLogEntry, AutomationJob, ChangeRequest } from '@/types';
+import { Requirement, Risk, Control, ControlActivity, Evidence, SkillDefinition, AutomationRecipe, AutomationLogEntry, AutomationJob, ChangeRequest, AgentAction, AgentEvent } from '@/types';
 
 // ==========================================
 // 1. REQUIREMENTS (ISO, SOC 2, GDP, NIST)
@@ -75,7 +75,7 @@ export const controls: Control[] = [
     // Change Management
     { id: 'CTL-CM-01', title: 'CAB Approval Process', description: 'All normal changes must be approved by the Change Advisory Board.', procedure: '1. Create ticket\n2. Attach risk analysis\n3. CAB vote\n4. Deploy', status: 'active', linkedRiskIds: ['RISK-CM-01', 'RISK-CM-03'], linkedEvidenceIds: ['EVD-CM-01'], createdAt: '2024-01-12', updatedAt: '2024-01-12' },
     { id: 'CTL-CM-02', title: 'CI/CD Automated Gates', description: 'Pipeline blocks deployment if unit tests or security scans fail.', procedure: '1. Commit code\n2. Run pipeline\n3. Pass SAST/Tests', status: 'active', linkedRiskIds: ['RISK-CM-01', 'RISK-CM-02'], linkedEvidenceIds: ['EVD-CM-02'], createdAt: '2024-01-12', updatedAt: '2024-01-12' },
-    { id: 'CTL-CM-03', title: 'Pull Request Peer Review', description: 'Code changes require approval from 1 peer code owner.', procedure: '1. Open PR\n2. Peer Review\n3. Merge', status: 'active', linkedRiskIds: ['RISK-CM-02'], linkedEvidenceIds: [], createdAt: '2024-01-12', updatedAt: '2024-01-12' },
+    { id: 'CTL-CM-03', title: 'Pull Request Peer Review', description: 'Code changes require approval from 1 peer code owner.', procedure: '1. Open PR\n2. Peer Review\n3. Merge', status: 'active', linkedRiskIds: ['RISK-CM-02'], linkedEvidenceIds: ['EVD-CM-03', 'EVD-CM-04'], createdAt: '2024-01-12', updatedAt: '2024-01-12' },
 
     // Privacy
     { id: 'CTL-PRIV-01', title: 'Automated Account Deletion', description: 'Script runs daily to identify and purge accounts marked for deletion > 30 days.', procedure: '1. Mark for deletion\n2. Wait 30 days\n3. Hard delete', status: 'active', linkedRiskIds: ['RISK-PRIV-01'], linkedEvidenceIds: ['EVD-PRIV-01'], createdAt: '2024-01-18', updatedAt: '2024-01-18' },
@@ -114,6 +114,8 @@ export const controlActivities: ControlActivity[] = [
 export const evidence: Evidence[] = [
     { id: 'EVD-CM-01', title: 'CAB Meeting Minutes - March', fileName: 'cab-mins-mar.pdf', uploadedAt: '2024-03-10', status: 'reviewed', linkedControlId: 'CTL-CM-01', matchScore: 100, assignedTo: 'user-1' },
     { id: 'EVD-CM-02', title: 'CI/CD Pipeline Log #4022', fileName: 'build-log-4022.txt', uploadedAt: '2024-03-12', status: 'analyzed', linkedControlId: 'CTL-CM-02', matchScore: 98, assignedTo: 'system' },
+    { id: 'EVD-CM-03', title: 'GitHub PR #2345', fileName: 'pr-2345.json', uploadedAt: '2024-03-15', status: 'analyzed', linkedControlId: 'CTL-CM-03', matchScore: 100, assignedTo: 'system' },
+    { id: 'EVD-CM-04', title: 'Branch Protection Rules', fileName: 'branch-protection.png', uploadedAt: '2024-03-15', status: 'reviewed', linkedControlId: 'CTL-CM-03', matchScore: 100, assignedTo: 'user-3' },
     { id: 'EVD-ACC-01', title: 'Terminated User Report', fileName: 'term-report-jan.csv', uploadedAt: '2024-02-01', status: 'reviewed', linkedControlId: 'CTL-ACC-01', matchScore: 95, assignedTo: 'user-2' },
     { id: 'EVD-ACC-02', title: 'Access Review Attestation', fileName: 'uar-engineering.pdf', uploadedAt: '2024-01-30', status: 'attached', linkedControlId: 'CTL-ACC-02', matchScore: 85, assignedTo: 'user-1' },
     { id: 'EVD-PRIV-01', title: 'Deletion Script Output', fileName: 'del-log-2024.log', uploadedAt: '2024-03-28', status: 'analyzing', linkedControlId: 'CTL-PRIV-01', matchScore: undefined, assignedTo: 'system' },
@@ -205,4 +207,49 @@ export const automationJobs: AutomationJob[] = [
     { id: 'job-001', title: 'Analyze evidence batch', skillId: 'skill-evidence-analyzer', status: 'running', progress: 45, startedAt: '2024-03-27T10:33:00Z' },
     { id: 'job-002', title: 'Generate quarterly risks', skillId: 'skill-risk-gen', status: 'queued', progress: 0 },
     { id: 'job-003', title: 'Draft SOC 2 report', skillId: 'skill-report-draft', status: 'completed', progress: 100, startedAt: '2024-03-27T10:25:00Z', completedAt: '2024-03-27T10:27:00Z' },
+];
+
+export const agentActions: AgentAction[] = [
+    {
+        id: 'AA-001',
+        controlId: 'CTL-ACC-02',
+        type: 'decision',
+        title: 'Approve Remediation Draft',
+        description: 'AI has detected 3 unauthorized users in the Q1 access review. A draft email to their managers is ready.',
+        reasoning: 'Proactive remediation reduces risk exposure time for excessive privileges.',
+        status: 'pending',
+        timestamp: '2024-03-27T14:20:00Z'
+    },
+    {
+        id: 'AA-002',
+        controlId: 'CTL-ACC-02',
+        type: 'suggestion',
+        title: 'Automate Evidence Collection',
+        description: 'I can connect to the Azure AD API to automate the quarterly user list generation.',
+        reasoning: 'Connectors for Azure AD already exist in the environment. This would increase automation score by 15%.',
+        status: 'pending',
+        timestamp: '2024-03-27T15:05:00Z'
+    },
+    {
+        id: 'AA-003',
+        controlId: 'CTL-CM-03',
+        type: 'decision',
+        title: 'Flag Suspicious PR Bypass',
+        description: 'PR #2345 was merged without approvals. A rollback or exemption is required.',
+        reasoning: 'Policy dictates 1 peer review. Bypassing this is a CRITICAL violation.',
+        status: 'pending',
+        timestamp: '2024-03-27T14:30:00Z'
+    }
+];
+
+export const agentEvents: AgentEvent[] = [
+    { id: 'AE-001', controlId: 'CTL-ACC-02', type: 'listening', message: 'Monitoring Azure AD audit logs for access changes...', timestamp: '2024-03-27T16:00:00Z' },
+    { id: 'AE-002', controlId: 'CTL-ACC-02', type: 'evidence', message: 'Auto-collected Q1 Engineering Access List from Azure AD.', timestamp: '2024-03-27T15:30:00Z' },
+    { id: 'AE-003', controlId: 'CTL-ACC-02', type: 'analyzing', message: 'Analyzing match between policy REQ-ACC-03 and collected evidence.', timestamp: '2024-03-27T15:35:00Z' },
+    { id: 'AE-004', controlId: 'CTL-ACC-02', type: 'alert', message: 'Detected 3 users with "Global Admin" role who have not logged in for 60 days.', timestamp: '2024-03-27T15:40:00Z', details: 'Users: j.doe, s.smith, t.brown' },
+
+    { id: 'AE-005', controlId: 'CTL-CM-03', type: 'listening', message: 'Watching GitHub repository "core-backend" for Pull Request events...', timestamp: '2024-03-27T18:00:00Z' },
+    { id: 'AE-006', controlId: 'CTL-CM-03', type: 'alert', message: 'PR #2345 merged by "superuser-admin" without required reviews.', timestamp: '2024-03-27T14:28:00Z' },
+    { id: 'AE-007', controlId: 'CTL-CM-03', type: 'analyzing', message: 'Comparing PR metadata against "Require Peer Review" policy.', timestamp: '2024-03-27T14:29:00Z' },
+
 ];

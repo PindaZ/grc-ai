@@ -18,6 +18,8 @@ import {
 import { SearchRegular, AddRegular, FilterRegular, SparkleRegular } from '@fluentui/react-icons';
 import Link from 'next/link';
 import { controls } from '@/data/fixtures';
+import { GlassCard } from '@/components/ui/GlassCard';
+import { StatusBadge } from '@/components/atoms/Badges';
 
 const useStyles = makeStyles({
     page: {
@@ -30,8 +32,10 @@ const useStyles = makeStyles({
         marginBottom: tokens.spacingVerticalXXL,
     },
     title: {
-        fontSize: tokens.fontSizeHero700,
-        fontWeight: tokens.fontWeightSemibold,
+        fontSize: '32px',
+        fontWeight: '800',
+        color: '#FFFFFF',
+        textShadow: '0 2px 10px rgba(0, 112, 173, 0.3)',
     },
     quickActions: {
         display: 'flex',
@@ -96,15 +100,15 @@ export default function ControlsPage() {
                 <Button appearance="subtle" icon={<FilterRegular />}>Filters</Button>
             </div>
 
-            <Card>
+            <GlassCard style={{ padding: '0 8px' }}>
                 <Table>
                     <TableHeader>
                         <TableRow>
-                            <TableHeaderCell>ID</TableHeaderCell>
-                            <TableHeaderCell>Title</TableHeaderCell>
-                            <TableHeaderCell>Status</TableHeaderCell>
-                            <TableHeaderCell>Linked Risks</TableHeaderCell>
-                            <TableHeaderCell>Evidence</TableHeaderCell>
+                            <TableHeaderCell style={{ color: 'rgba(255,255,255,0.9)', fontWeight: '700', padding: '24px 20px', letterSpacing: '2px', fontSize: '12px' }}>ID</TableHeaderCell>
+                            <TableHeaderCell style={{ color: 'rgba(255,255,255,0.9)', fontWeight: '700', padding: '24px 20px', letterSpacing: '2px', fontSize: '12px' }}>TITLE</TableHeaderCell>
+                            <TableHeaderCell style={{ color: 'rgba(255,255,255,0.9)', fontWeight: '700', padding: '24px 20px', letterSpacing: '2px', fontSize: '12px' }}>STATUS</TableHeaderCell>
+                            <TableHeaderCell style={{ color: 'rgba(255,255,255,0.9)', fontWeight: '700', padding: '24px 20px', letterSpacing: '2px', fontSize: '12px' }}>LINKS</TableHeaderCell>
+                            <TableHeaderCell style={{ color: 'rgba(255,255,255,0.9)', fontWeight: '700', padding: '24px 20px', letterSpacing: '2px', fontSize: '12px' }}>EVIDENCE</TableHeaderCell>
                         </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -121,13 +125,7 @@ export default function ControlsPage() {
                                     <Link href={`/controls/${control.id}`}>{control.title}</Link>
                                 </TableCell>
                                 <TableCell>
-                                    <Badge
-                                        appearance="filled"
-                                        color={control.status === 'active' ? 'success' : 'warning'}
-                                        style={{ textTransform: 'capitalize' }}
-                                    >
-                                        {control.status}
-                                    </Badge>
+                                    <StatusBadge status={control.status} />
                                 </TableCell>
                                 <TableCell>{control.linkedRiskIds.length}</TableCell>
                                 <TableCell>{control.linkedEvidenceIds.length}</TableCell>
@@ -135,7 +133,7 @@ export default function ControlsPage() {
                         ))}
                     </TableBody>
                 </Table>
-            </Card>
+            </GlassCard>
         </div>
     );
 }

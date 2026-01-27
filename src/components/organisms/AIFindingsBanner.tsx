@@ -6,39 +6,69 @@ import Link from 'next/link';
 
 const useStyles = makeStyles({
     banner: {
-        backgroundColor: tokens.colorBrandBackground2,
-        border: `1px solid ${tokens.colorBrandStroke1}`,
-        borderRadius: tokens.borderRadiusMedium,
-        padding: tokens.spacingVerticalM,
+        background: 'rgba(0, 112, 173, 0.08)',
+        backdropFilter: 'blur(16px)',
+        border: '1px solid rgba(23, 171, 218, 0.25)',
+        borderRadius: '16px',
+        padding: '16px 24px',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
-        marginBottom: tokens.spacingVerticalM,
+        marginBottom: '24px',
+        boxShadow: '0 8px 32px rgba(0, 70, 103, 0.15)',
+        position: 'relative',
+        overflow: 'hidden',
+        '&::after': {
+            content: '""',
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            background: 'linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.03), transparent)',
+            zIndex: 0,
+            pointerEvents: 'none',
+        }
     },
     content: {
         display: 'flex',
         alignItems: 'center',
-        gap: tokens.spacingHorizontalM,
+        gap: '20px',
+        position: 'relative',
+        zIndex: 1,
     },
     icon: {
-        fontSize: '24px',
-        color: tokens.colorBrandForeground1,
+        fontSize: '28px',
+        color: '#17ABDA',
+        filter: 'drop-shadow(0 0 8px rgba(23, 171, 218, 0.4))',
     },
     text: {
         display: 'flex',
         flexDirection: 'column',
-        gap: tokens.spacingVerticalXXS,
+        gap: '2px',
     },
     badges: {
         display: 'flex',
-        gap: tokens.spacingHorizontalXS,
-        marginLeft: tokens.spacingHorizontalM,
+        gap: '8px',
+        marginLeft: '20px',
     },
     actions: {
         display: 'flex',
         alignItems: 'center',
-        gap: tokens.spacingHorizontalS,
+        gap: '12px',
+        position: 'relative',
+        zIndex: 1,
     },
+    reviewBtn: {
+        background: 'var(--brand-blue)',
+        color: 'white',
+        fontWeight: '600',
+        borderRadius: '12px',
+        '&:hover': {
+            background: 'var(--brand-dark)',
+            transform: 'scale(1.02)',
+        }
+    }
 });
 
 interface AIFindingsBannerProps {
@@ -84,7 +114,7 @@ export function AIFindingsBanner({
             </div>
             <div className={styles.actions}>
                 <Link href={reviewPath}>
-                    <Button appearance="primary" icon={<ArrowRightRegular />} iconPosition="after">
+                    <Button className={styles.reviewBtn} icon={<ArrowRightRegular />} iconPosition="after">
                         Review Now
                     </Button>
                 </Link>
@@ -126,7 +156,7 @@ export function MultiSkillFindingsSummary({ findings }: MultiSkillFindingsSummar
             </div>
             <div className={styles.actions}>
                 <Link href="/automation?tab=findings">
-                    <Button appearance="primary" icon={<ArrowRightRegular />} iconPosition="after">
+                    <Button className={styles.reviewBtn} icon={<ArrowRightRegular />} iconPosition="after">
                         Review All
                     </Button>
                 </Link>

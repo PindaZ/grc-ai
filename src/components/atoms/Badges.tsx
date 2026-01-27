@@ -75,7 +75,18 @@ export function StatusBadge({ status, size = 'medium' }: StatusBadgeProps) {
     const color = statusColors[normalizedStatus] || 'subtle';
 
     return (
-        <Badge appearance="filled" color={color} size={size} style={{ textTransform: 'capitalize' }}>
+        <Badge
+            appearance="filled"
+            color={color}
+            size={size}
+            style={{
+                textTransform: 'uppercase',
+                fontWeight: '700',
+                fontSize: '10px',
+                letterSpacing: '1px',
+                padding: '2px 10px',
+            }}
+        >
             {status.replace(/-/g, ' ')}
         </Badge>
     );

@@ -14,6 +14,7 @@ import {
     DrawerHeaderTitle,
     DrawerBody,
     Badge,
+    shorthands,
 } from '@fluentui/react-components';
 import {
     SparkleRegular,
@@ -32,51 +33,78 @@ const useStyles = makeStyles({
         display: 'flex',
     },
     drawer: {
-        width: '320px',
+        width: '340px',
         height: '100%',
-        borderLeft: `1px solid ${tokens.colorNeutralStroke1}`,
+        backgroundColor: tokens.colorNeutralBackgroundAlpha2,
+        backdropFilter: 'blur(32px)',
+        borderLeft: `1px solid ${tokens.colorNeutralStrokeSubtle}`,
+        boxShadow: tokens.shadow16,
     },
     rail: {
-        width: '48px',
+        width: '56px',
         height: '100%',
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
-        paddingTop: tokens.spacingVerticalM,
-        gap: tokens.spacingVerticalS,
-        borderLeft: `1px solid ${tokens.colorNeutralStroke1}`,
-        backgroundColor: tokens.colorNeutralBackground2,
+        paddingTop: '24px',
+        gap: '16px',
+        borderLeft: `1px solid ${tokens.colorNeutralStrokeSubtle}`,
+        backgroundColor: tokens.colorNeutralBackgroundAlpha,
     },
     section: {
-        marginBottom: tokens.spacingVerticalL,
+        marginBottom: '32px',
     },
     sectionTitle: {
         display: 'flex',
         alignItems: 'center',
-        gap: tokens.spacingHorizontalXS,
-        marginBottom: tokens.spacingVerticalS,
-        color: tokens.colorNeutralForeground3,
-        fontSize: tokens.fontSizeBase200,
-        fontWeight: tokens.fontWeightSemibold,
+        gap: '10px',
+        marginBottom: '20px',
+        color: tokens.colorNeutralForeground4,
+        fontSize: '11px',
+        fontWeight: '700',
         textTransform: 'uppercase',
+        letterSpacing: '1.5px',
     },
     suggestionCard: {
-        marginBottom: tokens.spacingVerticalS,
+        marginBottom: '16px',
         width: '100%',
+        backgroundColor: tokens.colorNeutralBackgroundAlpha,
+        ...shorthands.border('1px', 'solid', tokens.colorNeutralStrokeSubtle),
+        borderRadius: '12px',
+        transition: 'all 0.3s ease',
+        '&:hover': {
+            backgroundColor: tokens.colorNeutralBackgroundAlpha2,
+            ...shorthands.borderColor(tokens.colorBrandStroke1),
+            transform: 'translateY(-2px)',
+        }
+    },
+    acceptBtn: {
+        background: 'linear-gradient(135deg, #0070AD 0%, #17ABDA 100%)',
+        color: '#fff',
+        fontWeight: '600',
+        ...shorthands.border('none'),
+        '&:hover': {
+            background: 'linear-gradient(135deg, #0070AD 20%, #17ABDA 120%)',
+        }
     },
     insight: {
         display: 'flex',
         alignItems: 'flex-start',
-        gap: tokens.spacingHorizontalS,
-        padding: tokens.spacingVerticalS,
-        backgroundColor: tokens.colorNeutralBackground1,
-        borderRadius: tokens.borderRadiusMedium,
-        marginBottom: tokens.spacingVerticalXS,
+        gap: '12px',
+        padding: '16px',
+        backgroundColor: tokens.colorNeutralBackgroundAlpha,
+        borderRadius: '12px',
+        marginBottom: '8px',
+        borderLeft: '3px solid #fce100',
+        transition: 'all 0.2s ease',
+        '&:hover': {
+            backgroundColor: tokens.colorNeutralBackgroundAlpha2,
+        }
     },
     insightIcon: {
-        color: tokens.colorPaletteYellowForeground1,
+        color: '#fce100',
         flexShrink: 0,
-        marginTop: '2px',
+        fontSize: '16px',
     },
 });
 
@@ -173,14 +201,14 @@ export function AISidebar() {
                         {suggestions.map((s) => (
                             <Card key={s.id} className={styles.suggestionCard} size="small">
                                 <CardHeader
-                                    header={<Text weight="semibold">{s.title}</Text>}
+                                    header={<Text weight="semibold" style={{ color: tokens.colorNeutralForeground1 }}>{s.title}</Text>}
                                     description={<Text size={200} style={{ color: tokens.colorNeutralForeground3 }}>{s.description}</Text>}
                                 />
                                 <CardFooter>
-                                    <Button size="small" appearance="primary" icon={<CheckmarkRegular />}>
+                                    <Button size="small" className={styles.acceptBtn} icon={<CheckmarkRegular />}>
                                         Accept
                                     </Button>
-                                    <Button size="small" appearance="subtle" icon={<DismissRegular />}>
+                                    <Button size="small" appearance="subtle" style={{ color: tokens.colorNeutralForeground3 }} icon={<DismissRegular />}>
                                         Dismiss
                                     </Button>
                                 </CardFooter>
@@ -188,17 +216,17 @@ export function AISidebar() {
                         ))}
                     </div>
 
-                    <Divider />
+                    <Divider style={{ opacity: 0.1 }} />
 
-                    <div className={styles.section} style={{ marginTop: tokens.spacingVerticalM }}>
+                    <div className={styles.section} style={{ marginTop: '24px' }}>
                         <div className={styles.sectionTitle}>
                             <InfoRegular />
                             Insights
                         </div>
                         {insights.map((insight, i) => (
                             <div key={i} className={styles.insight}>
-                                <span className={styles.insightIcon}>⚠️</span>
-                                <Text size={200}>{insight}</Text>
+                                <InfoRegular className={styles.insightIcon} />
+                                <Text size={200} style={{ color: tokens.colorNeutralForeground1 }}>{insight}</Text>
                             </div>
                         ))}
                     </div>

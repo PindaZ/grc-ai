@@ -48,17 +48,17 @@ const useStyles = makeStyles({
         width: '40px',
         height: '40px',
         borderRadius: '12px',
-        background: 'rgba(255,255,255,0.1)',
+        background: tokens.colorNeutralBackgroundAlpha,
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        color: '#fff',
+        color: tokens.colorNeutralForeground1,
     },
     sectionTitle: {
         fontSize: '18px',
         fontWeight: '600',
         marginBottom: '16px',
-        color: '#fff',
+        color: tokens.colorNeutralForeground1,
         display: 'flex',
         alignItems: 'center',
         gap: '8px',
@@ -70,7 +70,7 @@ const useStyles = makeStyles({
         gap: '4px',
         height: '250px',
         marginTop: '16px',
-        background: 'rgba(255,255,255,0.02)',
+        background: tokens.colorNeutralBackgroundAlpha,
         padding: '8px',
         borderRadius: '8px',
     },
@@ -80,7 +80,7 @@ const useStyles = makeStyles({
         alignItems: 'center',
         justifyContent: 'center',
         fontSize: '12px',
-        color: 'rgba(0,0,0,0.6)',
+        color: tokens.colorNeutralForeground4,
         fontWeight: 'bold',
         transition: 'all 0.2s',
         cursor: 'pointer',
@@ -101,11 +101,11 @@ const useStyles = makeStyles({
         justifyContent: 'space-between',
         padding: '12px',
         borderRadius: '8px',
-        background: 'rgba(255,255,255,0.03)',
-        border: '1px solid rgba(255,255,255,0.05)',
+        background: tokens.colorNeutralBackgroundAlpha,
+        border: `1px solid ${tokens.colorNeutralStrokeSubtle}`,
         transition: 'background 0.2s',
         '&:hover': {
-            background: 'rgba(255,255,255,0.06)',
+            background: tokens.colorNeutralBackgroundAlpha2,
         },
     },
 });
@@ -155,8 +155,8 @@ export const RiskOwnerDashboard = () => {
                     <div className={styles.iconBox}><AlertUrgentRegular fontSize={24} /></div>
                 </div>
                 <div>
-                    <Text size={600} weight="bold" style={{ color: '#fff', display: 'block' }}>{risks.length}</Text>
-                    <Text size={200} style={{ color: 'rgba(255,255,255,0.5)' }}>Total Identified Risks</Text>
+                    <Text size={600} weight="bold" style={{ color: tokens.colorNeutralForeground1, display: 'block' }}>{risks.length}</Text>
+                    <Text size={200} style={{ color: tokens.colorNeutralForeground3 }}>Total Identified Risks</Text>
                 </div>
                 <div style={{ height: '20px' }} />
             </GlassCard>
@@ -171,7 +171,7 @@ export const RiskOwnerDashboard = () => {
                 </div>
                 <div>
                     <Text size={600} weight="bold" style={{ color: '#d13438', display: 'block' }}>{highRisks.length}</Text>
-                    <Text size={200} style={{ color: 'rgba(255,255,255,0.5)' }}>Critical Risks ({'>'}16)</Text>
+                    <Text size={200} style={{ color: tokens.colorNeutralForeground3 }}>Critical Risks ({'>'}16)</Text>
                 </div>
                 <AnimatedChart data={[5, 8, 6, 9, 12, 8, 6, 4]} color="#d13438" height={60} />
             </GlassCard>
@@ -185,7 +185,7 @@ export const RiskOwnerDashboard = () => {
                 </div>
                 <div>
                     <Text size={600} weight="bold" style={{ color: '#fce100', display: 'block' }}>{missingMitigations.length}</Text>
-                    <Text size={200} style={{ color: 'rgba(255,255,255,0.5)' }}>Missing Controls</Text>
+                    <Text size={200} style={{ color: tokens.colorNeutralForeground3 }}>Missing Controls</Text>
                 </div>
             </GlassCard>
 
@@ -196,7 +196,7 @@ export const RiskOwnerDashboard = () => {
                 </div>
                 <div>
                     <Text size={600} weight="bold" style={{ color: '#0078d4', display: 'block' }}>-12%</Text>
-                    <Text size={200} style={{ color: 'rgba(255,255,255,0.5)' }}>Risk Exposure MoM</Text>
+                    <Text size={200} style={{ color: tokens.colorNeutralForeground3 }}>Risk Exposure MoM</Text>
                 </div>
                 <AnimatedChart data={riskTrend} color="#0078d4" height={60} />
             </GlassCard>
@@ -207,7 +207,7 @@ export const RiskOwnerDashboard = () => {
                     <TargetArrowRegular />
                     Risk Heatmap
                 </div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', fontSize: '12px', color: 'rgba(255,255,255,0.5)' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', fontSize: '12px', color: tokens.colorNeutralForeground3 }}>
                     <span>High Impact</span>
                     <span>Low Impact</span>
                 </div>
@@ -232,7 +232,7 @@ export const RiskOwnerDashboard = () => {
                         })
                     ))}
                 </div>
-                <div style={{ textAlign: 'center', marginTop: '8px', fontSize: '12px', color: 'rgba(255,255,255,0.5)' }}>
+                <div style={{ textAlign: 'center', marginTop: '8px', fontSize: '12px', color: tokens.colorNeutralForeground3 }}>
                     Likelihood (Low → High)
                 </div>
             </GlassCard>
@@ -248,15 +248,15 @@ export const RiskOwnerDashboard = () => {
                 </div>
                 <div className={styles.listContainer}>
                     {missingMitigations.length === 0 ? (
-                        <Text style={{ color: 'rgba(255,255,255,0.5)', textAlign: 'center', padding: '20px' }}>
+                        <Text style={{ color: tokens.colorNeutralForeground3, textAlign: 'center', padding: '20px' }}>
                             All risks have associated controls. Good job!
                         </Text>
                     ) : (
                         missingMitigations.map(risk => (
                             <div key={risk.id} className={styles.listItem}>
                                 <div>
-                                    <Text weight="semibold" style={{ display: 'block', color: '#fff' }}>{risk.title}</Text>
-                                    <Text size={200} style={{ color: 'rgba(255,255,255,0.5)' }}>
+                                    <Text weight="semibold" style={{ display: 'block', color: tokens.colorNeutralForeground1 }}>{risk.title}</Text>
+                                    <Text size={200} style={{ color: tokens.colorNeutralForeground3 }}>
                                         Impact: {risk.impact} • Likelihood: {risk.likelihood}
                                     </Text>
                                 </div>

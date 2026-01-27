@@ -25,10 +25,13 @@ import {
     DialogContent,
     DialogActions,
     Spinner,
+    shorthands,
 } from '@fluentui/react-components';
 import { SearchRegular, AddRegular, SparkleRegular, ArrowUploadRegular } from '@fluentui/react-icons';
 import { useState } from 'react';
 import { evidence, controls } from '@/data/fixtures';
+import { GlassCard } from '@/components/ui/GlassCard';
+import { StatusBadge } from '@/components/atoms/Badges';
 
 const useStyles = makeStyles({
     page: {
@@ -41,16 +44,19 @@ const useStyles = makeStyles({
         marginBottom: tokens.spacingVerticalXXL,
     },
     title: {
-        fontSize: tokens.fontSizeHero700,
-        fontWeight: tokens.fontWeightSemibold,
+        fontSize: '36px',
+        fontWeight: '800',
+        color: tokens.colorNeutralForeground1,
+        // textShadow: '0 2px 10px rgba(0, 112, 173, 0.3)',
     },
     quickActions: {
         display: 'flex',
         gap: tokens.spacingHorizontalS,
         padding: `${tokens.spacingVerticalS} ${tokens.spacingHorizontalM}`,
-        backgroundColor: tokens.colorNeutralBackground2,
+        backgroundColor: tokens.colorBrandBackground2,
         borderRadius: tokens.borderRadiusMedium,
         marginBottom: tokens.spacingVerticalL,
+        border: `1px solid ${tokens.colorBrandStroke2}`,
         alignItems: 'center',
     },
     quickActionsLabel: {
@@ -68,6 +74,14 @@ const useStyles = makeStyles({
     },
     searchInput: {
         minWidth: '300px',
+        backgroundColor: tokens.colorNeutralBackgroundAlpha,
+        ...shorthands.border('1px', 'solid', tokens.colorNeutralStrokeSubtle),
+        borderRadius: '12px',
+        transition: 'all 0.2s ease',
+        '&:focus-within': {
+            ...shorthands.borderColor(tokens.colorBrandStroke1),
+            boxShadow: tokens.shadow8,
+        },
     },
     dropzone: {
         border: `2px dashed ${tokens.colorNeutralStroke1}`,
@@ -75,7 +89,7 @@ const useStyles = makeStyles({
         padding: tokens.spacingVerticalXXL,
         textAlign: 'center',
         marginBottom: tokens.spacingVerticalL,
-        backgroundColor: tokens.colorNeutralBackground2,
+        backgroundColor: tokens.colorNeutralBackgroundAlpha,
         cursor: 'pointer',
         '&:hover': {
             backgroundColor: tokens.colorBrandBackground2,
@@ -200,16 +214,16 @@ export default function EvidencePage() {
                     />
                 </div>
 
-                <Card>
+                <GlassCard style={{ padding: '0 8px' }}>
                     <Table>
                         <TableHeader>
                             <TableRow>
-                                <TableHeaderCell>Title</TableHeaderCell>
-                                <TableHeaderCell>File</TableHeaderCell>
-                                <TableHeaderCell>Uploaded</TableHeaderCell>
-                                <TableHeaderCell>Status</TableHeaderCell>
-                                <TableHeaderCell>Linked Control</TableHeaderCell>
-                                <TableHeaderCell>Match Score</TableHeaderCell>
+                                <TableHeaderCell style={{ color: tokens.colorNeutralForeground2, fontWeight: '700', padding: '24px 20px', letterSpacing: '2px', fontSize: '12px' }}>TITLE</TableHeaderCell>
+                                <TableHeaderCell style={{ color: tokens.colorNeutralForeground2, fontWeight: '700', padding: '24px 20px', letterSpacing: '2px', fontSize: '12px' }}>FILE</TableHeaderCell>
+                                <TableHeaderCell style={{ color: tokens.colorNeutralForeground2, fontWeight: '700', padding: '24px 20px', letterSpacing: '2px', fontSize: '12px' }}>UPLOADED</TableHeaderCell>
+                                <TableHeaderCell style={{ color: tokens.colorNeutralForeground2, fontWeight: '700', padding: '24px 20px', letterSpacing: '2px', fontSize: '12px' }}>STATUS</TableHeaderCell>
+                                <TableHeaderCell style={{ color: tokens.colorNeutralForeground2, fontWeight: '700', padding: '24px 20px', letterSpacing: '2px', fontSize: '12px' }}>LINKED CONTROL</TableHeaderCell>
+                                <TableHeaderCell style={{ color: tokens.colorNeutralForeground2, fontWeight: '700', padding: '24px 20px', letterSpacing: '2px', fontSize: '12px' }}>MATCH SCORE</TableHeaderCell>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
@@ -221,9 +235,7 @@ export default function EvidencePage() {
                                     <TableCell>{ev.fileName}</TableCell>
                                     <TableCell>{ev.uploadedAt}</TableCell>
                                     <TableCell>
-                                        <Badge appearance="tint" style={{ textTransform: 'capitalize' }}>
-                                            {ev.status}
-                                        </Badge>
+                                        <StatusBadge status={ev.status} />
                                     </TableCell>
                                     <TableCell>
                                         {ev.linkedControlId ? (
@@ -241,7 +253,7 @@ export default function EvidencePage() {
                             ))}
                         </TableBody>
                     </Table>
-                </Card>
+                </GlassCard>
             </div>
         </div>
     );

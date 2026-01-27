@@ -182,3 +182,23 @@ export interface ChangeRequest {
   pipelineUrl?: string;
   deploymentStatus?: 'success' | 'failure' | 'pending';
 }
+
+export interface AgentAction {
+  id: string;
+  controlId: string;
+  type: 'suggestion' | 'decision' | 'task';
+  title: string;
+  description: string;
+  reasoning: string;
+  status: 'pending' | 'accepted' | 'rejected' | 'executed';
+  timestamp: string;
+}
+
+export interface AgentEvent {
+  id: string;
+  controlId: string;
+  type: 'listening' | 'analyzing' | 'action' | 'evidence' | 'alert';
+  message: string;
+  timestamp: string;
+  details?: string;
+}

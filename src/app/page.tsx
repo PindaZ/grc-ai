@@ -34,26 +34,41 @@ const useStyles = makeStyles({
     ...shorthands.padding(tokens.spacingHorizontalXXL),
     maxWidth: '1600px',
     ...shorthands.margin('0', 'auto'),
-    color: '#fff',
+    color: tokens.colorNeutralForeground1,
   },
   header: {
-    marginBottom: tokens.spacingVerticalXXL,
+    marginBottom: '48px',
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'flex-end',
+    borderBottom: `1px solid ${tokens.colorNeutralStrokeSubtle}`,
+    paddingBottom: '24px',
   },
   title: {
-    fontSize: '32px',
-    fontWeight: tokens.fontWeightSemibold,
-    background: 'linear-gradient(90deg, #fff, #a0a0a0)',
-    WebkitBackgroundClip: 'text',
-    WebkitTextFillColor: 'transparent',
+    fontSize: '40px',
+    fontWeight: '800',
+    color: tokens.colorNeutralForeground1,
+    // textShadow: '0 2px 15px rgba(0, 112, 173, 0.4)',
     marginBottom: tokens.spacingVerticalS,
     display: 'block',
+    letterSpacing: '-0.02em',
   },
   subtitle: {
-    color: 'rgba(255, 255, 255, 0.6)',
+    color: tokens.colorNeutralForeground3,
     fontSize: tokens.fontSizeBase400,
+    fontWeight: '400',
+  },
+  aiButton: {
+    background: 'linear-gradient(135deg, #0070AD 0%, #17ABDA 100%)',
+    color: '#fff',
+    ...shorthands.border('none'),
+    boxShadow: '0 0 20px rgba(23, 171, 218, 0.3)',
+    transition: 'all 0.3s ease',
+    '&:hover': {
+      boxShadow: '0 0 30px rgba(23, 171, 218, 0.5)',
+      transform: 'scale(1.05)',
+      background: 'linear-gradient(135deg, #0070AD 20%, #17ABDA 120%)',
+    }
   },
   bentoGrid: {
     display: 'grid',
@@ -89,27 +104,30 @@ const useStyles = makeStyles({
     marginBottom: tokens.spacingVerticalL,
   },
   iconBox: {
-    width: '40px',
-    height: '40px',
+    width: '42px',
+    height: '42px',
     ...shorthands.borderRadius('12px'),
-    background: 'rgba(255,255,255,0.1)',
+    background: 'rgba(0, 112, 173, 0.15)',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    color: '#fff',
+    color: '#17ABDA',
+    boxShadow: '0 0 15px rgba(23, 171, 218, 0.1)',
   },
   value: {
-    fontSize: '36px',
-    fontWeight: '700',
+    fontSize: '42px',
+    fontWeight: '800',
     color: '#fff',
     lineHeight: 1,
-    marginBottom: '4px',
+    marginBottom: '8px',
+    letterSpacing: '-0.03em',
   },
   label: {
-    color: 'rgba(255,255,255,0.5)',
+    color: 'rgba(255, 255, 255, 0.4)',
     fontSize: tokens.fontSizeBase200,
     textTransform: 'uppercase',
-    letterSpacing: '1px',
+    letterSpacing: '1.5px',
+    fontWeight: '600',
   },
   listContainer: {
     display: 'flex',
@@ -120,27 +138,29 @@ const useStyles = makeStyles({
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'space-between',
-    ...shorthands.padding('12px'),
-    ...shorthands.borderRadius('8px'),
-    background: 'rgba(255,255,255,0.03)',
-    ...shorthands.border('1px', 'solid', 'rgba(255,255,255,0.05)'),
-    transition: 'background 0.2s',
+    ...shorthands.padding('16px'),
+    ...shorthands.borderRadius('12px'),
+    background: tokens.colorNeutralBackgroundAlpha,
+    ...shorthands.border('1px', 'solid', tokens.colorNeutralStrokeSubtle),
+    transition: 'all 0.2s ease',
     '&:hover': {
-      background: 'rgba(255,255,255,0.06)',
+      background: tokens.colorNeutralBackgroundAlpha2,
+      transform: 'translateX(4px)',
+      ...shorthands.borderColor(tokens.colorBrandStroke1),
     },
   },
   sectionTitle: {
-    fontSize: '18px',
-    fontWeight: '600',
-    marginBottom: '16px',
-    color: '#fff',
+    fontSize: '20px',
+    fontWeight: '700',
+    marginBottom: '20px',
+    color: tokens.colorNeutralForeground1,
     display: 'flex',
     alignItems: 'center',
-    gap: '8px',
+    gap: '10px',
   },
   statusDot: {
-    width: '8px',
-    height: '8px',
+    width: '10px',
+    height: '10px',
     ...shorthands.borderRadius('50%'),
     display: 'inline-block',
     marginRight: '8px',
@@ -191,12 +211,12 @@ export default function HomePage() {
         </div>
         <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
           <RoleSwitcher />
-          <Button appearance="primary" shape="circular" icon={<SparkleRegular />}>Ask AI Copilot</Button>
+          <Button className={styles.aiButton} shape="circular" icon={<SparkleRegular />}>Ask AI Copilot</Button>
         </div>
       </header>
 
       {/* AI Summary Banner - Visible to all for "Wow" factor */}
-      {findingsSummary.length > 0 && <MultiSkillFindingsSummary findings={findingsSummary} />}
+      {findingsSummary.length > 0 && <div style={{ marginBottom: '32px' }}><MultiSkillFindingsSummary findings={findingsSummary} /></div>}
 
       <div style={{ marginTop: '24px' }}>
         {currentRole === 'risk-owner' && <RiskOwnerDashboard />}

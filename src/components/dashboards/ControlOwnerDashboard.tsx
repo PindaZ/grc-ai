@@ -46,17 +46,17 @@ const useStyles = makeStyles({
         width: '40px',
         height: '40px',
         borderRadius: '12px',
-        background: 'rgba(255,255,255,0.1)',
+        background: tokens.colorNeutralBackgroundAlpha,
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        color: '#fff',
+        color: tokens.colorNeutralForeground1,
     },
     sectionTitle: {
         fontSize: '18px',
         fontWeight: '600',
         marginBottom: '16px',
-        color: '#fff',
+        color: tokens.colorNeutralForeground1,
         display: 'flex',
         alignItems: 'center',
         gap: '8px',
@@ -72,11 +72,11 @@ const useStyles = makeStyles({
         justifyContent: 'space-between',
         padding: '12px',
         borderRadius: '8px',
-        background: 'rgba(255,255,255,0.03)',
-        border: '1px solid rgba(255,255,255,0.05)',
+        background: tokens.colorNeutralBackgroundAlpha,
+        border: `1px solid ${tokens.colorNeutralStrokeSubtle}`,
         transition: 'background 0.2s',
         '&:hover': {
-            background: 'rgba(255,255,255,0.06)',
+            background: tokens.colorNeutralBackgroundAlpha2,
         },
     },
     progressBar: {
@@ -121,7 +121,7 @@ export const ControlOwnerDashboard = () => {
                 </div>
                 <div>
                     <Text size={600} weight="bold" style={{ color: '#0078d4', display: 'block' }}>{myPendingActions.length}</Text>
-                    <Text size={200} style={{ color: 'rgba(255,255,255,0.5)' }}>Open Control Actions</Text>
+                    <Text size={200} style={{ color: tokens.colorNeutralForeground3 }}>Open Control Actions</Text>
                 </div>
                 <div style={{ marginTop: '12px' }}>
                     <ProgressBar value={0.7} color="brand" className={styles.progressBar} />
@@ -138,7 +138,7 @@ export const ControlOwnerDashboard = () => {
                 </div>
                 <div>
                     <Text size={600} weight="bold" style={{ color: '#10ba80', display: 'block' }}>{effectivenessScore}%</Text>
-                    <Text size={200} style={{ color: 'rgba(255,255,255,0.5)' }}>Control Effectiveness</Text>
+                    <Text size={200} style={{ color: tokens.colorNeutralForeground3 }}>Control Effectiveness</Text>
                 </div>
                 <AnimatedChart data={[80, 82, 81, 85, 84, 86, 87, 87]} color="#10ba80" height={60} />
             </GlassCard>
@@ -152,7 +152,7 @@ export const ControlOwnerDashboard = () => {
                 </div>
                 <div>
                     <Text size={600} weight="bold" style={{ color: '#d13438', display: 'block' }}>{evidenceNeeded.length}</Text>
-                    <Text size={200} style={{ color: 'rgba(255,255,255,0.5)' }}>Evidence Missing</Text>
+                    <Text size={200} style={{ color: tokens.colorNeutralForeground3 }}>Evidence Missing</Text>
                 </div>
             </GlassCard>
 
@@ -162,8 +162,8 @@ export const ControlOwnerDashboard = () => {
                     <div className={styles.iconBox}><CalendarClockRegular fontSize={24} /></div>
                 </div>
                 <div>
-                    <Text size={600} weight="bold" style={{ color: '#fff', display: 'block' }}>3</Text>
-                    <Text size={200} style={{ color: 'rgba(255,255,255,0.5)' }}>Due This Week</Text>
+                    <Text size={600} weight="bold" style={{ color: tokens.colorNeutralForeground1, display: 'block' }}>3</Text>
+                    <Text size={200} style={{ color: tokens.colorNeutralForeground3 }}>Due This Week</Text>
                 </div>
                 <AnimatedChart data={[2, 3, 5, 2, 4, 3, 3]} color="#ffffff" height={60} />
             </GlassCard>
@@ -178,8 +178,8 @@ export const ControlOwnerDashboard = () => {
                     {myPendingActions.slice(0, 5).map(action => (
                         <div key={action.id} className={styles.listItem}>
                             <div>
-                                <Text weight="semibold" style={{ display: 'block', color: '#fff' }}>{action.title}</Text>
-                                <Text size={200} style={{ color: 'rgba(255,255,255,0.5)' }}>
+                                <Text weight="semibold" style={{ display: 'block', color: tokens.colorNeutralForeground1 }}>{action.title}</Text>
+                                <Text size={200} style={{ color: tokens.colorNeutralForeground3 }}>
                                     Due: {new Date(action.dueDate).toLocaleDateString()}
                                 </Text>
                             </div>
@@ -187,7 +187,7 @@ export const ControlOwnerDashboard = () => {
                         </div>
                     ))}
                     {myPendingActions.length === 0 && (
-                        <Text style={{ color: 'rgba(255,255,255,0.5)', padding: '20px', textAlign: 'center' }}>
+                        <Text style={{ color: tokens.colorNeutralForeground3, padding: '20px', textAlign: 'center' }}>
                             No pending actions. You're all caught up!
                         </Text>
                     )}
@@ -204,8 +204,8 @@ export const ControlOwnerDashboard = () => {
                     {evidenceNeeded.slice(0, 5).map(control => (
                         <div key={control.id} className={styles.listItem}>
                             <div style={{ flex: 1 }}>
-                                <Text weight="semibold" style={{ display: 'block', color: '#fff' }}>{control.title}</Text>
-                                <Text size={200} style={{ color: 'rgba(255,255,255,0.5)' }}>
+                                <Text weight="semibold" style={{ display: 'block', color: tokens.colorNeutralForeground1 }}>{control.title}</Text>
+                                <Text size={200} style={{ color: tokens.colorNeutralForeground3 }}>
                                     {control.id}
                                 </Text>
                             </div>
