@@ -54,6 +54,7 @@ export interface Evidence {
   uploadedAt: string;
   status: 'uploaded' | 'analyzing' | 'analyzed' | 'attached' | 'reviewed';
   linkedControlId?: string;
+  assignedTo?: string;
   extractedData?: Record<string, string>;
   matchScore?: number;
 }
@@ -156,3 +157,28 @@ export interface AutomationRun {
   error?: string;
 }
 
+export interface ChangeApproval {
+  id: string;
+  approverId: string;
+  role: 'peer' | 'manager' | 'security' | 'cab';
+  status: 'pending' | 'approved' | 'rejected';
+  timestamp?: string;
+  comment?: string;
+}
+
+export interface ChangeRequest {
+  id: string;
+  title: string;
+  description: string;
+  service: string;
+  requester: string;
+  status: 'draft' | 'pending-approval' | 'approved' | 'rejected' | 'implemented';
+  type: 'standard' | 'normal' | 'emergency';
+  riskLevel: 'low' | 'medium' | 'high';
+  createdAt: string;
+  scheduledFor: string;
+  approvals: ChangeApproval[];
+  linkedTickets?: string[];
+  pipelineUrl?: string;
+  deploymentStatus?: 'success' | 'failure' | 'pending';
+}

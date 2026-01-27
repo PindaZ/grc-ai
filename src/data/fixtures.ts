@@ -1,4 +1,4 @@
-import { Requirement, Risk, Control, ControlActivity, Evidence, SkillDefinition, AutomationRecipe, AutomationLogEntry, AutomationJob } from '@/types';
+import { Requirement, Risk, Control, ControlActivity, Evidence, SkillDefinition, AutomationRecipe, AutomationLogEntry, AutomationJob, ChangeRequest } from '@/types';
 
 export const requirements: Requirement[] = [
     { id: 'REQ-001', title: 'GDPR Article 5 - Data Processing Principles', description: 'Personal data shall be processed lawfully, fairly and in a transparent manner.', source: 'GDPR', status: 'active', linkedRiskIds: ['RISK-001', 'RISK-002'], createdAt: '2024-01-15', updatedAt: '2024-03-10' },
@@ -62,4 +62,56 @@ export const automationJobs: AutomationJob[] = [
     { id: 'job-001', title: 'Analyze evidence batch', skillId: 'skill-evidence-analyzer', status: 'running', progress: 45, startedAt: '2024-03-27T10:33:00Z' },
     { id: 'job-002', title: 'Generate quarterly risks', skillId: 'skill-risk-gen', status: 'queued', progress: 0 },
     { id: 'job-003', title: 'Draft SOC 2 report', skillId: 'skill-report-draft', status: 'completed', progress: 100, startedAt: '2024-03-27T10:25:00Z', completedAt: '2024-03-27T10:27:00Z' },
+];
+
+export const changeRequests: ChangeRequest[] = [
+    {
+        id: 'CR-2024-001',
+        title: 'Upgrade Database to v14',
+        description: 'Upgrade the primary production database to version 14 to fix security vulnerabilities.',
+        service: 'Core Database',
+        requester: 'user-3',
+        status: 'pending-approval',
+        type: 'normal',
+        riskLevel: 'medium',
+        createdAt: '2024-03-25T09:00:00Z',
+        scheduledFor: '2024-04-01T02:00:00Z',
+        linkedTickets: ['JIRA-4022', 'JIRA-4025'],
+        approvals: [
+            { id: 'app-1', approverId: 'user-manager', role: 'manager', status: 'approved', timestamp: '2024-03-26T10:00:00Z', comment: 'Approved for Q2 window' },
+            { id: 'app-2', approverId: 'user-sec', role: 'security', status: 'pending' },
+            { id: 'app-3', approverId: 'cal-cab', role: 'cab', status: 'pending' }
+        ]
+    },
+    {
+        id: 'CR-2024-002',
+        title: 'Hotfix: Payment Gateway Timeout',
+        description: 'Increase timeout settings for payment gateway to prevent transaction failures during load.',
+        service: 'Payment Service',
+        requester: 'user-4',
+        status: 'implemented',
+        type: 'emergency',
+        riskLevel: 'high',
+        createdAt: '2024-03-20T14:30:00Z',
+        scheduledFor: '2024-03-20T15:00:00Z',
+        linkedTickets: ['INC-9021'],
+        deploymentStatus: 'success',
+        approvals: [
+            { id: 'app-4', approverId: 'user-lead', role: 'manager', status: 'approved', timestamp: '2024-03-20T14:45:00Z' },
+            { id: 'app-5', approverId: 'user-sec', role: 'security', status: 'approved', timestamp: '2024-03-20T14:50:00Z', comment: 'Emergency approval granted' }
+        ]
+    },
+    {
+        id: 'CR-2024-003',
+        title: 'Update Frontend Assets',
+        description: 'Routine update of static assets and content for the landing page.',
+        service: 'Frontend Web',
+        requester: 'user-5',
+        status: 'approved',
+        type: 'standard',
+        riskLevel: 'low',
+        createdAt: '2024-03-27T08:00:00Z',
+        scheduledFor: '2024-03-29T10:00:00Z',
+        approvals: []
+    }
 ];

@@ -1,3 +1,12 @@
+:root {
+  /* Glassmorphism & Modern UI Tokens */
+  --glass-bg: rgba(255, 255, 255, 0.03);
+  --glass-border: rgba(255, 255, 255, 0.08);
+  --glass-shine: rgba(255, 255, 255, 0.05);
+  --neon-primary: rgba(0, 120, 212, 0.6);
+  --neon-accent: rgba(100, 255, 218, 0.4);
+}
+
 * {
   box-sizing: border-box;
   padding: 0;
@@ -9,7 +18,20 @@ body {
   max-width: 100vw;
   overflow-x: hidden;
   font-family: var(--fontFamilyBase, 'Segoe UI', -apple-system, BlinkMacSystemFont, 'Roboto', 'Helvetica Neue', sans-serif);
-  color-scheme: light dark;
+  color-scheme: dark;
+  /* Force dark mode preference */
+  background: #0f1115;
+  /* Deep dark background */
+  color: #ededed;
+}
+
+body {
+  /* Ambient animated background mesh */
+  background:
+    radial-gradient(circle at 15% 50%, rgba(76, 29, 149, 0.15), transparent 25%),
+    radial-gradient(circle at 85% 30%, rgba(0, 120, 212, 0.15), transparent 25%);
+  background-attachment: fixed;
+  min-height: 100vh;
 }
 
 /* Smooth theme transitions */

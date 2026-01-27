@@ -75,7 +75,7 @@ export function DataTable<T>({ columns, items, loading, onSelectionChange, getRo
                         {columns.map((column) => (
                             <TableHeaderCell
                                 key={column.columnId}
-                                {...(column.compare ? {
+                                {...(!!column.compare ? {
                                     sortable: true,
                                     sortDirection: getSortDirection(column.columnId),
                                     onClick: (e: React.SyntheticEvent) => toggleColumnSort(e, column.columnId)
