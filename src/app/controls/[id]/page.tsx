@@ -3,74 +3,51 @@
 import {
     makeStyles,
     tokens,
-    Card,
     Text,
     Button,
-    Badge,
-    Divider,
-    TabList,
-    Tab,
-    Dialog,
-    DialogTrigger,
-    DialogSurface,
-    DialogTitle,
-    DialogBody,
-    DialogContent,
-    DialogActions,
-    Spinner,
 } from '@fluentui/react-components';
 import {
     ArrowLeftRegular,
     SparkleRegular,
-    CheckmarkRegular,
     WarningRegular,
     FolderOpenRegular,
     ClipboardTaskRegular,
-    HistoryRegular,
     DocumentTextRegular,
+    ArrowTrendingLinesRegular,
+    CheckmarkRegular,
 } from '@fluentui/react-icons';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { useState } from 'react';
-import { controls, risks, evidence as allEvidence } from '@/data/fixtures';
+import { controls, risks, evidence as allEvidence, agentActions as allActions, agentEvents as allEvents } from '@/data/fixtures';
+import { GlassCard } from '@/components/ui/GlassCard';
+import { StatusBadge } from '@/components/atoms/Badges';
+import { ControlHealthCard } from '@/components/molecules/ControlHealthCard';
+import { AgentActionCenter } from '@/components/organisms/AgentActionCenter';
+import { EvidenceTimeline } from '@/components/molecules/EvidenceTimeline';
+import { ControlHero } from '@/components/organisms/ControlHero';
 
 const useStyles = makeStyles({
     page: {
         padding: tokens.spacingHorizontalXXL,
-        maxWidth: '1400px',
+        paddingBottom: tokens.spacingVerticalXXL,
     },
     backLink: {
         display: 'flex',
         alignItems: 'center',
         gap: tokens.spacingHorizontalXS,
         marginBottom: tokens.spacingVerticalL,
-        color: tokens.colorNeutralForeground3,
+        color: tokens.colorNeutralForeground4,
+        textDecoration: 'none',
+        fontSize: '14px',
+        '&:hover': { color: tokens.colorBrandForeground1 },
     },
-    header: {
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'flex-start',
-        marginBottom: tokens.spacingVerticalL,
-    },
-    titleSection: {
-        display: 'flex',
-        flexDirection: 'column',
-        gap: tokens.spacingVerticalS,
-    },
-    title: {
-        fontSize: tokens.fontSizeHero700,
-        fontWeight: tokens.fontWeightSemibold,
-    },
-    actions: {
-        display: 'flex',
-        gap: tokens.spacingHorizontalS,
-    },
-    content: {
+    validationGrid: {
         display: 'grid',
-        gridTemplateColumns: '2fr 1fr',
+        gridTemplateColumns: 'minmax(600px, 65fr) minmax(350px, 35fr)',
         gap: tokens.spacingHorizontalXXL,
     },
-    mainContent: {
+    mainStream: {
         display: 'flex',
         flexDirection: 'column',
         gap: tokens.spacingVerticalL,
@@ -80,83 +57,48 @@ const useStyles = makeStyles({
         flexDirection: 'column',
         gap: tokens.spacingVerticalL,
     },
-    tabContent: {
-        padding: tokens.spacingVerticalL,
-        minHeight: '300px',
-    },
-    glassCard: {
-        backgroundColor: 'rgba(255, 255, 255, 0.6)',
-        backdropFilter: 'var(--glass-blur)',
-        border: '1px solid var(--glass-border-light)',
-        boxShadow: 'var(--shadow-soft-sm)',
-        borderRadius: tokens.borderRadiusLarge,
-    },
-    procedureStep: {
-        padding: tokens.spacingVerticalS,
-        borderBottom: `1px solid ${tokens.colorNeutralStroke1}`,
-    },
-    evidenceItem: {
+    sectionTitle: {
+        fontSize: '12px',
+        fontWeight: '700',
+        textTransform: 'uppercase',
+        letterSpacing: '1.5px',
+        color: tokens.colorNeutralForeground4,
+        marginBottom: tokens.spacingVerticalM,
         display: 'flex',
         alignItems: 'center',
-        justifyContent: 'space-between',
-        padding: tokens.spacingVerticalS,
-        borderBottom: `1px solid ${tokens.colorNeutralStroke1}`,
+        gap: '8px',
     },
-    linkedItem: {
-        padding: tokens.spacingVerticalS,
-        borderBottom: `1px solid ${tokens.colorNeutralStroke1}`,
-        transition: 'background-color 0.15s ease',
+    contextTabs: {
+        display: 'flex',
+        gap: tokens.spacingHorizontalL,
+        borderBottom: `1px solid ${tokens.colorNeutralStrokeSubtle}`,
+        marginBottom: tokens.spacingVerticalM,
+        paddingBottom: tokens.spacingVerticalS,
+    },
+    tab: {
+        color: tokens.colorNeutralForeground3,
+        fontWeight: '600',
         cursor: 'pointer',
-        '&:hover': {
-            backgroundColor: 'rgba(255, 255, 255, 0.3)',
-        }
+        paddingBottom: '8px',
+        borderBottom: '2px solid transparent',
+        '&:hover': { color: tokens.colorNeutralForeground1 },
     },
-    dialogContent: {
-        minWidth: '500px',
-    },
-    aiRevealContainer: {
-        marginTop: tokens.spacingVerticalL,
-        padding: tokens.spacingVerticalL,
-        border: '1px solid var(--glass-border-light)',
-        borderRadius: tokens.borderRadiusLarge,
-        background: 'linear-gradient(180deg, rgba(255,255,255,0.4) 0%, rgba(255,255,255,0.1) 100%)',
-        animationName: 'slideInUp',
-        animationDuration: '0.5s',
-        animationFillMode: 'forwards',
-    },
-    loadingContainer: {
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        padding: tokens.spacingVerticalXXL,
-        gap: tokens.spacingHorizontalM,
-    },
-    completenessResult: {
-        padding: tokens.spacingVerticalM,
-        backgroundColor: tokens.colorNeutralBackground2,
-        borderRadius: tokens.borderRadiusMedium,
-        marginTop: tokens.spacingVerticalM,
-    },
+    activeTab: {
+        color: tokens.colorBrandForeground1,
+        borderBottom: `2px solid ${tokens.colorBrandForeground1}`,
+    }
 });
 
 export default function ControlDetailPage() {
     const styles = useStyles();
     const params = useParams();
     const [activeTab, setActiveTab] = useState('overview');
-    const [isChecking, setIsChecking] = useState(false);
-    const [showCompleteness, setShowCompleteness] = useState(false);
 
     const control = controls.find(c => c.id === params.id);
     const linkedRisks = risks.filter(r => control?.linkedRiskIds.includes(r.id));
     const linkedEvidence = allEvidence.filter(e => control?.linkedEvidenceIds.includes(e.id));
-
-    const handleCheckCompleteness = () => {
-        setIsChecking(true);
-        setTimeout(() => {
-            setIsChecking(false);
-            setShowCompleteness(true);
-        }, 2000);
-    };
+    const actions = allActions.filter(a => a.controlId === params.id);
+    const events = allEvents.filter(e => e.controlId === params.id);
 
     if (!control) {
         return <div className={styles.page}><Text>Control not found</Text></div>;
@@ -165,146 +107,97 @@ export default function ControlDetailPage() {
     return (
         <div className={styles.page}>
             <Link href="/controls" className={styles.backLink}>
-                <ArrowLeftRegular /> Back to Controls
+                <ArrowLeftRegular /> Back to Controls Library
             </Link>
 
-            <div className={styles.header}>
-                <div className={styles.titleSection}>
-                    <Text className={styles.title}>{control.id}: {control.title}</Text>
-                    <Badge
-                        appearance="filled"
-                        color={control.status === 'active' ? 'success' : 'warning'}
-                        style={{ textTransform: 'capitalize', width: 'fit-content' }}
-                    >
-                        {control.status}
-                    </Badge>
-                </div>
-                <div className={styles.actions}>
-                    <Dialog>
-                        <DialogTrigger disableButtonEnhancement>
-                            <Button appearance="primary" icon={<SparkleRegular />} onClick={handleCheckCompleteness}>
-                                Check Completeness
-                            </Button>
-                        </DialogTrigger>
-                        <DialogSurface className={styles.dialogContent}>
-                            <DialogBody>
-                                <DialogTitle>
-                                    <span style={{ display: 'flex', alignItems: 'center', gap: tokens.spacingHorizontalS }}>
-                                        <SparkleRegular style={{ color: tokens.colorBrandForeground1 }} />
-                                        Completeness Check
-                                    </span>
-                                </DialogTitle>
-                                <DialogContent>
-                                    {isChecking && (
-                                        <div className={styles.loadingContainer}>
-                                            <Spinner />
-                                            <Text>Analyzing control completeness...</Text>
-                                        </div>
-                                    )}
-                                    {showCompleteness && (
-                                        <>
-                                            <Text weight="semibold" block style={{ marginBottom: tokens.spacingVerticalM }}>
-                                                Analysis Complete
-                                            </Text>
-                                            <div className={styles.completenessResult}>
-                                                <Text block>✅ Procedure documented</Text>
-                                                <Text block>✅ Evidence attached ({linkedEvidence.length} items)</Text>
-                                                <Text block>⚠️ Missing: Approval signature</Text>
-                                                <Text block>⚠️ Missing: Last test date</Text>
-                                            </div>
-                                            <Text size={200} style={{ marginTop: tokens.spacingVerticalM, color: tokens.colorNeutralForeground3 }}>
-                                                Completeness Score: 75%
-                                            </Text>
-                                        </>
-                                    )}
-                                </DialogContent>
-                                <DialogActions>
-                                    <DialogTrigger disableButtonEnhancement>
-                                        <Button appearance="secondary">Close</Button>
-                                    </DialogTrigger>
-                                </DialogActions>
-                            </DialogBody>
-                        </DialogSurface>
-                    </Dialog>
-                    <Button appearance="subtle" icon={<SparkleRegular />}>Generate Procedure</Button>
-                </div>
-            </div>
+            {/* A. Hero State Bar (Top) */}
+            <ControlHero
+                id={control.id}
+                title={control.title}
+                status={control.status}
+                automationScore={82}
+                healthStatus="Healthy"
+            />
 
-            <div className={styles.content}>
-                <div className={styles.mainContent}>
-                    <Card>
-                        <TabList selectedValue={activeTab} onTabSelect={(_, d) => setActiveTab(d.value as string)}>
-                            <Tab value="overview" icon={<DocumentTextRegular />}>Overview</Tab>
-                            <Tab value="procedure" icon={<ClipboardTaskRegular />}>Procedure</Tab>
-                            <Tab value="evidence" icon={<FolderOpenRegular />}>Evidence</Tab>
-                            <Tab value="history" icon={<HistoryRegular />}>History</Tab>
-                        </TabList>
-                        <Divider />
-                        <div className={styles.tabContent}>
-                            {activeTab === 'overview' && (
-                                <>
-                                    <Text weight="semibold" block style={{ marginBottom: tokens.spacingVerticalS }}>Description</Text>
-                                    <Text>{control.description}</Text>
-                                </>
-                            )}
-                            {activeTab === 'procedure' && (
-                                <>
-                                    <Text weight="semibold" block style={{ marginBottom: tokens.spacingVerticalS }}>Control Procedure</Text>
-                                    {control.procedure.split('\\n').map((step, i) => (
-                                        <div key={i} className={styles.procedureStep}>
-                                            <Text>{step}</Text>
-                                        </div>
-                                    ))}
-                                </>
-                            )}
-                            {activeTab === 'evidence' && (
-                                <>
-                                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: tokens.spacingVerticalM }}>
-                                        <Text weight="semibold">Attached Evidence</Text>
-                                        <Link href="/evidence">
-                                            <Button size="small" appearance="primary">Upload Evidence</Button>
-                                        </Link>
-                                    </div>
-                                    {linkedEvidence.length === 0 ? (
-                                        <Text style={{ color: tokens.colorNeutralForeground3 }}>No evidence attached yet.</Text>
-                                    ) : linkedEvidence.map(ev => (
-                                        <div key={ev.id} className={styles.evidenceItem}>
-                                            <div>
-                                                <Text weight="semibold" block>{ev.title}</Text>
-                                                <Text size={200}>{ev.fileName}</Text>
-                                            </div>
-                                            <Badge appearance="tint" style={{ textTransform: 'capitalize' }}>{ev.status}</Badge>
-                                        </div>
-                                    ))}
-                                </>
-                            )}
-                            {activeTab === 'history' && (
-                                <>
-                                    <Text weight="semibold" block style={{ marginBottom: tokens.spacingVerticalS }}>Activity History</Text>
-                                    <Text style={{ color: tokens.colorNeutralForeground3 }}>
-                                        Created: {control.createdAt} • Updated: {control.updatedAt}
-                                    </Text>
-                                </>
-                            )}
-                        </div>
-                    </Card>
-                </div>
-
-                <div className={styles.sidebar}>
-                    <Card>
-                        <Text weight="semibold" style={{ marginBottom: tokens.spacingVerticalS }} block>
-                            <WarningRegular /> Linked Risks ({linkedRisks.length})
-                        </Text>
-                        <Divider />
-                        {linkedRisks.map(risk => (
-                            <div key={risk.id} className={styles.linkedItem}>
-                                <Link href={`/risks/${risk.id}`}>
-                                    <Text size={200} weight="semibold">{risk.id}</Text>
-                                    <Text size={200} block>{risk.title}</Text>
-                                </Link>
+            <div className={styles.validationGrid}>
+                {/* B. Main Stream (Left - 65%) */}
+                <div className={styles.mainStream}>
+                    <GlassCard>
+                        <div className={styles.contextTabs}>
+                            <div
+                                className={activeTab === 'overview' ? styles.activeTab : styles.tab}
+                                onClick={() => setActiveTab('overview')}
+                            >
+                                Overview
                             </div>
-                        ))}
-                    </Card>
+                            <div
+                                className={activeTab === 'procedure' ? styles.activeTab : styles.tab}
+                                onClick={() => setActiveTab('procedure')}
+                            >
+                                Procedure
+                            </div>
+                            <div
+                                className={activeTab === 'risks' ? styles.activeTab : styles.tab}
+                                onClick={() => setActiveTab('risks')}
+                            >
+                                Linked Risks
+                            </div>
+                        </div>
+
+                        {activeTab === 'overview' && (
+                            <Text size={300} style={{ lineHeight: '1.6', color: tokens.colorNeutralForeground1 }}>
+                                {control.description}
+                            </Text>
+                        )}
+
+                        {activeTab === 'procedure' && (
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                                {control.procedure.split('\n').map((step, i) => (
+                                    <div key={i} style={{ display: 'flex', gap: '12px' }}>
+                                        <Text weight="bold" style={{ color: tokens.colorBrandForeground1 }}>{i + 1}.</Text>
+                                        <Text>{step}</Text>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+
+                        {activeTab === 'risks' && (
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                                {linkedRisks.map(risk => (
+                                    <div key={risk.id} style={{ padding: '8px', border: `1px solid ${tokens.colorNeutralStrokeSubtle}`, borderRadius: '8px' }}>
+                                        <Text weight="bold" block>{risk.title}</Text>
+                                        <Text size={200} style={{ color: tokens.colorNeutralForeground4 }}>{risk.id}</Text>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+                    </GlassCard>
+
+                    <div>
+                        <div className={styles.sectionTitle}><FolderOpenRegular /> Unified Audit Stream</div>
+                        <GlassCard>
+                            {/* C. Unified Timeline (Evidence + Events) */}
+                            <EvidenceTimeline evidence={linkedEvidence} events={events} />
+                        </GlassCard>
+                    </div>
+                </div>
+
+                {/* C. Sidebar (Right - 35%) */}
+                <div className={styles.sidebar}>
+                    <div>
+                        <div className={styles.sectionTitle}><SparkleRegular /> AI Co-Pilot</div>
+                        {/* We hide the events from ActionCenter now as they are in the unified timeline */}
+                        <AgentActionCenter actions={actions} events={[]} />
+                    </div>
+
+                    <div>
+                        <div className={styles.sectionTitle}><ArrowTrendingLinesRegular /> Real-time Metrics</div>
+                        <ControlHealthCard
+                            automationScore={82}
+                            lastTested="15 mins ago"
+                            passRate={100}
+                        />
+                    </div>
                 </div>
             </div>
         </div>

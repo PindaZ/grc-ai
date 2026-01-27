@@ -45,73 +45,88 @@ const useStyles = makeStyles({
         display: 'flex',
         flexDirection: 'column',
         height: '100vh',
-        backgroundColor: tokens.colorNeutralBackground1,
-        borderRight: `1px solid ${tokens.colorNeutralStroke1}`,
-        transition: 'width 0.2s ease',
+        backgroundColor: tokens.colorNeutralBackgroundAlpha2,
+        backdropFilter: 'blur(20px)',
+        borderRight: `1px solid ${tokens.colorNeutralStrokeSubtle}`,
+        transition: 'width 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+        zIndex: 10,
     },
     sidebarExpanded: {
-        width: '240px',
+        width: '260px',
     },
     sidebarCollapsed: {
-        width: '60px',
+        width: '72px',
     },
     logo: {
-        padding: tokens.spacingVerticalL,
+        padding: '24px',
         display: 'flex',
         alignItems: 'center',
-        gap: tokens.spacingHorizontalM,
-        borderBottom: `1px solid ${tokens.colorNeutralStroke1}`,
-        minHeight: '60px',
+        gap: '12px',
+        minHeight: '80px',
+        marginBottom: '20px',
+    },
+    logoIcon: {
+        fontSize: '32px',
+        color: '#0070AD',
+        filter: 'drop-shadow(0 0 10px rgba(0, 112, 173, 0.3))',
     },
     logoText: {
-        fontWeight: tokens.fontWeightSemibold,
-        fontSize: tokens.fontSizeBase400,
+        fontWeight: '800',
+        fontSize: '20px',
         whiteSpace: 'nowrap',
         overflow: 'hidden',
+        letterSpacing: '-0.02em',
+        background: `linear-gradient(90deg, ${tokens.colorNeutralForeground1}, #0070AD)`,
+        WebkitBackgroundClip: 'text',
+        WebkitTextFillColor: 'transparent',
     },
     nav: {
         flex: 1,
-        padding: tokens.spacingVerticalS,
+        padding: '0 12px',
         overflowY: 'auto',
     },
     navItem: {
         display: 'flex',
         alignItems: 'center',
-        gap: tokens.spacingHorizontalM,
-        padding: `${tokens.spacingVerticalS} ${tokens.spacingHorizontalM}`,
-        borderRadius: tokens.borderRadiusMedium,
+        gap: '16px',
+        padding: '12px 16px',
+        borderRadius: '12px',
         textDecoration: 'none',
-        color: tokens.colorNeutralForeground1,
-        marginBottom: tokens.spacingVerticalXS,
-        transition: 'background-color 0.15s ease',
+        color: tokens.colorNeutralForeground4,
+        marginBottom: '8px',
+        transition: 'all 0.2s ease',
         cursor: 'pointer',
         '&:hover': {
-            backgroundColor: tokens.colorNeutralBackground1Hover,
+            backgroundColor: tokens.colorNeutralBackgroundAlpha,
+            color: tokens.colorNeutralForeground1,
         },
     },
     navItemActive: {
         backgroundColor: tokens.colorBrandBackground2,
         color: tokens.colorBrandForeground1,
+        fontWeight: '600',
+        borderLeft: `3px solid ${tokens.colorBrandStroke1}`,
         '&:hover': {
             backgroundColor: tokens.colorBrandBackground2Hover,
         },
     },
     navItemCollapsed: {
         justifyContent: 'center',
-        padding: tokens.spacingVerticalS,
+        padding: '12px',
     },
     navLabel: {
-        fontSize: tokens.fontSizeBase300,
+        fontSize: '14px',
         whiteSpace: 'nowrap',
         overflow: 'hidden',
     },
     navIcon: {
-        fontSize: '20px',
+        fontSize: '22px',
         flexShrink: 0,
     },
     collapseButton: {
-        margin: tokens.spacingVerticalM,
+        margin: '24px',
         alignSelf: 'center',
+        color: tokens.colorNeutralForeground4,
     },
 });
 
@@ -139,7 +154,7 @@ export function NavSidebar() {
     return (
         <aside className={`${styles.sidebar} ${navSidebarCollapsed ? styles.sidebarCollapsed : styles.sidebarExpanded}`}>
             <div className={styles.logo}>
-                <ShieldCheckmarkFilled style={{ fontSize: '24px', color: tokens.colorBrandForeground1 }} />
+                <ShieldCheckmarkFilled className={styles.logoIcon} />
                 {!navSidebarCollapsed && <span className={styles.logoText}>GRC Platform</span>}
             </div>
 

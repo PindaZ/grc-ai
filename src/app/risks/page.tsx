@@ -20,6 +20,8 @@ import { SearchRegular, AddRegular, FilterRegular, SparkleRegular, GridRegular, 
 import Link from 'next/link';
 import { useState } from 'react';
 import { risks } from '@/data/fixtures';
+import { GlassCard } from '@/components/ui/GlassCard';
+import { StatusBadge, RiskScoreBadge } from '@/components/atoms/Badges';
 
 const useStyles = makeStyles({
     page: {
@@ -32,8 +34,10 @@ const useStyles = makeStyles({
         marginBottom: tokens.spacingVerticalXXL,
     },
     title: {
-        fontSize: tokens.fontSizeHero700,
-        fontWeight: tokens.fontWeightSemibold,
+        fontSize: '36px',
+        fontWeight: '800',
+        color: tokens.colorNeutralForeground1,
+        // textShadow: '0 2px 10px rgba(0, 112, 173, 0.3)',
     },
     quickActions: {
         display: 'flex',
@@ -198,17 +202,17 @@ export default function RisksPage() {
                 </div>
             )}
 
-            <Card>
+            <GlassCard style={{ padding: '0 8px' }}>
                 <Table>
                     <TableHeader>
                         <TableRow>
-                            <TableHeaderCell>ID</TableHeaderCell>
-                            <TableHeaderCell>Title</TableHeaderCell>
-                            <TableHeaderCell>Impact</TableHeaderCell>
-                            <TableHeaderCell>Likelihood</TableHeaderCell>
-                            <TableHeaderCell>Score</TableHeaderCell>
-                            <TableHeaderCell>Status</TableHeaderCell>
-                            <TableHeaderCell>Controls</TableHeaderCell>
+                            <TableHeaderCell style={{ color: tokens.colorNeutralForeground2, fontWeight: '700', padding: '24px 20px', letterSpacing: '2px', fontSize: '12px' }}>ID</TableHeaderCell>
+                            <TableHeaderCell style={{ color: tokens.colorNeutralForeground2, fontWeight: '700', padding: '24px 20px', letterSpacing: '2px', fontSize: '12px' }}>TITLE</TableHeaderCell>
+                            <TableHeaderCell style={{ color: tokens.colorNeutralForeground2, fontWeight: '700', padding: '24px 20px', letterSpacing: '2px', fontSize: '12px' }}>IMPACT</TableHeaderCell>
+                            <TableHeaderCell style={{ color: tokens.colorNeutralForeground2, fontWeight: '700', padding: '24px 20px', letterSpacing: '2px', fontSize: '12px' }}>LIKELIHOOD</TableHeaderCell>
+                            <TableHeaderCell style={{ color: tokens.colorNeutralForeground2, fontWeight: '700', padding: '24px 20px', letterSpacing: '2px', fontSize: '12px' }}>SCORE</TableHeaderCell>
+                            <TableHeaderCell style={{ color: tokens.colorNeutralForeground2, fontWeight: '700', padding: '24px 20px', letterSpacing: '2px', fontSize: '12px' }}>STATUS</TableHeaderCell>
+                            <TableHeaderCell style={{ color: tokens.colorNeutralForeground2, fontWeight: '700', padding: '24px 20px', letterSpacing: '2px', fontSize: '12px' }}>CONTROLS</TableHeaderCell>
                         </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -227,24 +231,17 @@ export default function RisksPage() {
                                 <TableCell>{risk.impact}</TableCell>
                                 <TableCell>{risk.likelihood}</TableCell>
                                 <TableCell>
-                                    <Badge
-                                        appearance="filled"
-                                        color={risk.impact * risk.likelihood >= 16 ? 'danger' : risk.impact * risk.likelihood >= 9 ? 'warning' : 'success'}
-                                    >
-                                        {risk.impact * risk.likelihood}
-                                    </Badge>
+                                    <RiskScoreBadge impact={risk.impact} likelihood={risk.likelihood} showBreakdown />
                                 </TableCell>
                                 <TableCell>
-                                    <Badge appearance="tint" style={{ textTransform: 'capitalize' }}>
-                                        {risk.status}
-                                    </Badge>
+                                    <StatusBadge status={risk.status} />
                                 </TableCell>
                                 <TableCell>{risk.linkedControlIds.length}</TableCell>
                             </TableRow>
                         ))}
                     </TableBody>
                 </Table>
-            </Card>
+            </GlassCard>
         </div>
     );
 }

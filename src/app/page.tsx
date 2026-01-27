@@ -3,110 +3,185 @@
 import {
   makeStyles,
   tokens,
-  Card,
-  CardHeader,
   Text,
   Button,
   Badge,
-  Divider,
+  Avatar,
+  shorthands,
 } from '@fluentui/react-components';
 import {
   TaskListSquareLtrRegular,
   SparkleRegular,
   CalendarRegular,
   ShieldCheckmarkRegular,
-  ArrowRightRegular,
-  WarningRegular,
+  MoreHorizontalRegular,
 } from '@fluentui/react-icons';
 import Link from 'next/link';
+import { motion } from 'framer-motion';
 import { useApp } from '@/context/AppContext';
-import { controlActivities, risks, controls, evidence } from '@/data/fixtures';
+
 import { allPendingFindings, uarFindings, soc2Findings, regulatoryFindings, contractFindings } from '@/data/aiFindings';
 import { MultiSkillFindingsSummary } from '@/components/organisms/AIFindingsBanner';
+import { GlassCard } from '@/components/ui/GlassCard';
+import { AnimatedChart } from '@/components/visuals/AnimatedChart';
+import { RoleSwitcher } from '@/components/ui/RoleSwitcher';
+import { RiskOwnerDashboard } from '@/components/dashboards/RiskOwnerDashboard';
+import { ControlOwnerDashboard } from '@/components/dashboards/ControlOwnerDashboard';
+import { AuditorDashboard } from '@/components/dashboards/AuditorDashboard';
 
 const useStyles = makeStyles({
   page: {
-    padding: tokens.spacingHorizontalXXL,
-    maxWidth: '1400px',
+    ...shorthands.padding(tokens.spacingHorizontalXXL),
+    maxWidth: '1600px',
+    ...shorthands.margin('0', 'auto'),
+    color: tokens.colorNeutralForeground1,
   },
   header: {
-    marginBottom: tokens.spacingVerticalXXL,
+    marginBottom: '48px',
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'flex-end',
+    borderBottom: `1px solid ${tokens.colorNeutralStrokeSubtle}`,
+    paddingBottom: '24px',
   },
   title: {
-    fontSize: tokens.fontSizeHero800,
-    fontWeight: tokens.fontWeightSemibold,
+    fontSize: '40px',
+    fontWeight: '800',
+    color: tokens.colorNeutralForeground1,
+    // textShadow: '0 2px 15px rgba(0, 112, 173, 0.4)',
     marginBottom: tokens.spacingVerticalS,
+    display: 'block',
+    letterSpacing: '-0.02em',
   },
   subtitle: {
     color: tokens.colorNeutralForeground3,
+    fontSize: tokens.fontSizeBase400,
+    fontWeight: '400',
   },
-  grid: {
+  aiButton: {
+    background: 'linear-gradient(135deg, #0070AD 0%, #17ABDA 100%)',
+    color: '#fff',
+    ...shorthands.border('none'),
+    boxShadow: '0 0 20px rgba(23, 171, 218, 0.3)',
+    transition: 'all 0.3s ease',
+    '&:hover': {
+      boxShadow: '0 0 30px rgba(23, 171, 218, 0.5)',
+      transform: 'scale(1.05)',
+      background: 'linear-gradient(135deg, #0070AD 20%, #17ABDA 120%)',
+    }
+  },
+  bentoGrid: {
     display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-    gap: tokens.spacingHorizontalL,
-    marginBottom: tokens.spacingVerticalXXL,
+    gridTemplateColumns: 'repeat(4, 1fr)',
+    gridTemplateRows: 'auto auto',
+    gap: '24px',
+    marginBottom: '48px',
+    '@media (max-width: 1024px)': {
+      gridTemplateColumns: 'repeat(2, 1fr)',
+    },
+    '@media (max-width: 768px)': {
+      gridTemplateColumns: '1fr',
+    },
   },
-  widgetCard: {
-    minHeight: '160px',
+  colSpan2: {
+    gridColumn: 'span 2',
   },
-  widgetValue: {
-    fontSize: tokens.fontSizeHero700,
-    fontWeight: tokens.fontWeightBold,
-    color: tokens.colorBrandForeground1,
+  rowSpan2: {
+    gridRow: 'span 2',
   },
-  widgetLabel: {
-    color: tokens.colorNeutralForeground3,
-    marginBottom: tokens.spacingVerticalM,
+  widgetContent: {
+    position: 'relative',
+    zIndex: 1,
+    height: '100%',
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'space-between',
   },
-  listSection: {
-    marginBottom: tokens.spacingVerticalXXL,
-  },
-  sectionHeader: {
+  widgetHeader: {
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: tokens.spacingVerticalM,
+    marginBottom: tokens.spacingVerticalL,
+  },
+  iconBox: {
+    width: '42px',
+    height: '42px',
+    ...shorthands.borderRadius('12px'),
+    background: 'rgba(0, 112, 173, 0.15)',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    color: '#17ABDA',
+    boxShadow: '0 0 15px rgba(23, 171, 218, 0.1)',
+  },
+  value: {
+    fontSize: '42px',
+    fontWeight: '800',
+    color: '#fff',
+    lineHeight: 1,
+    marginBottom: '8px',
+    letterSpacing: '-0.03em',
+  },
+  label: {
+    color: 'rgba(255, 255, 255, 0.4)',
+    fontSize: tokens.fontSizeBase200,
+    textTransform: 'uppercase',
+    letterSpacing: '1.5px',
+    fontWeight: '600',
+  },
+  listContainer: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '12px',
   },
   listItem: {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'space-between',
-    padding: tokens.spacingVerticalS,
-    borderBottom: `1px solid ${tokens.colorNeutralStroke1}`,
-    '&:last-child': {
-      borderBottom: 'none',
+    ...shorthands.padding('16px'),
+    ...shorthands.borderRadius('12px'),
+    background: tokens.colorNeutralBackgroundAlpha,
+    ...shorthands.border('1px', 'solid', tokens.colorNeutralStrokeSubtle),
+    transition: 'all 0.2s ease',
+    '&:hover': {
+      background: tokens.colorNeutralBackgroundAlpha2,
+      transform: 'translateX(4px)',
+      ...shorthands.borderColor(tokens.colorBrandStroke1),
     },
   },
-  listItemContent: {
+  sectionTitle: {
+    fontSize: '20px',
+    fontWeight: '700',
+    marginBottom: '20px',
+    color: tokens.colorNeutralForeground1,
     display: 'flex',
-    flexDirection: 'column',
-    gap: tokens.spacingVerticalXXS,
+    alignItems: 'center',
+    gap: '10px',
   },
-  statusBadge: {
-    textTransform: 'capitalize',
+  statusDot: {
+    width: '10px',
+    height: '10px',
+    ...shorthands.borderRadius('50%'),
+    display: 'inline-block',
+    marginRight: '8px',
   },
 });
 
-const roleGreetings = {
-  'risk-owner': 'Risk Management Overview',
-  'control-owner': 'Control Operations Dashboard',
-  'auditor': 'Audit and Compliance Dashboard',
+const containerVariants = {
+  hidden: { opacity: 0 },
+  show: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.1
+    }
+  }
 };
 
 export default function HomePage() {
   const styles = useStyles();
   const { currentRole } = useApp();
 
-  const myTasks = controlActivities.filter(a => a.status !== 'done').slice(0, 4);
-  const highRisks = risks.filter(r => r.impact >= 4).slice(0, 3);
-  const pendingEvidence = evidence.filter(e => e.status !== 'reviewed').slice(0, 3);
-  const activeControls = controls.filter(c => c.status === 'active');
-
-  // Count findings by severity
-  const highFindings = allPendingFindings.filter(f => f.severity === 'high').length;
-  const totalFindings = allPendingFindings.length;
-
-  // Aggregate findings by skill for summary banner
+  // AI Findings Summary Data (kept global for now or could be moved to specific dashboards)
   const findingsSummary = [
     { skillName: 'User Access Review', count: uarFindings.filter(f => f.status === 'pending').length, highCount: uarFindings.filter(f => f.status === 'pending' && f.severity === 'high').length, path: '/automation/uar' },
     { skillName: 'SOC2 Parser', count: soc2Findings.filter(f => f.status === 'pending').length, highCount: soc2Findings.filter(f => f.status === 'pending' && f.severity === 'high').length, path: '/automation/soc2' },
@@ -114,134 +189,39 @@ export default function HomePage() {
     { skillName: 'Contract Analysis', count: contractFindings.filter(f => f.status === 'pending').length, highCount: contractFindings.filter(f => f.status === 'pending' && f.severity === 'high').length, path: '/automation/contracts' },
   ].filter(f => f.count > 0);
 
+  const getRoleLabel = (role: string) => {
+    switch (role) {
+      case 'risk-owner': return 'Risk Manager';
+      case 'control-owner': return 'Control Owner';
+      case 'auditor': return 'Internal Auditor';
+      default: return 'User';
+    }
+  };
+
   return (
     <div className={styles.page}>
-      <div className={styles.header}>
-        <Text className={styles.title}>{roleGreetings[currentRole]}</Text>
-        <Text className={styles.subtitle}>
-          Welcome back! Here&apos;s your compliance overview.
-        </Text>
-      </div>
-
-      {/* AI Findings Summary Banner */}
-      {findingsSummary.length > 0 && (
-        <MultiSkillFindingsSummary findings={findingsSummary} />
-      )}
-
-      <div className={styles.grid}>
-        <Card className={styles.widgetCard}>
-          <CardHeader
-            image={<TaskListSquareLtrRegular fontSize={24} />}
-            header={<Text weight="semibold">My Tasks</Text>}
-          />
-          <Text className={styles.widgetValue}>{myTasks.length}</Text>
-          <Text className={styles.widgetLabel}>activities pending</Text>
-          <Link href="/execution">
-            <Button appearance="subtle" icon={<ArrowRightRegular />} iconPosition="after">
-              View all
-            </Button>
-          </Link>
-        </Card>
-
-        <Card className={styles.widgetCard}>
-          <CardHeader
-            image={<SparkleRegular fontSize={24} />}
-            header={<Text weight="semibold">AI Findings</Text>}
-          />
-          <Text className={styles.widgetValue} style={{ color: highFindings > 0 ? tokens.colorPaletteRedForeground1 : tokens.colorBrandForeground1 }}>
-            {totalFindings}
+      <header className={styles.header}>
+        <div>
+          <Text className={styles.title}>Welcome back, {getRoleLabel(currentRole)}</Text>
+          <Text className={styles.subtitle}>
+            {currentRole === 'risk-owner' && "Here is the current risk landscape and exposure analysis."}
+            {currentRole === 'control-owner' && "You have pending actions and evidence uploads requiring attention."}
+            {currentRole === 'auditor' && "Overview of compliance gaps, findings, and audit schedules."}
           </Text>
-          <Text className={styles.widgetLabel}>
-            {highFindings > 0 ? `${highFindings} high priority` : 'items to review'}
-          </Text>
-          <Link href="/automation?tab=findings">
-            <Button appearance="subtle" icon={<ArrowRightRegular />} iconPosition="after">
-              Review
-            </Button>
-          </Link>
-        </Card>
-
-        <Card className={styles.widgetCard}>
-          <CardHeader
-            image={<CalendarRegular fontSize={24} />}
-            header={<Text weight="semibold">Upcoming Deadlines</Text>}
-          />
-          <Text className={styles.widgetValue}>4</Text>
-          <Text className={styles.widgetLabel}>due this week</Text>
-          <Link href="/execution">
-            <Button appearance="subtle" icon={<ArrowRightRegular />} iconPosition="after">
-              View calendar
-            </Button>
-          </Link>
-        </Card>
-
-        <Card className={styles.widgetCard}>
-          <CardHeader
-            image={<ShieldCheckmarkRegular fontSize={24} />}
-            header={<Text weight="semibold">Audit Readiness</Text>}
-          />
-          <Text className={styles.widgetValue}>87%</Text>
-          <Text className={styles.widgetLabel}>compliance score</Text>
-          <Link href="/reporting">
-            <Button appearance="subtle" icon={<ArrowRightRegular />} iconPosition="after">
-              View report
-            </Button>
-          </Link>
-        </Card>
-      </div>
-
-      <div className={styles.listSection}>
-        <div className={styles.sectionHeader}>
-          <Text size={500} weight="semibold">High Priority Risks</Text>
-          <Link href="/risks">
-            <Button appearance="subtle" size="small">View all</Button>
-          </Link>
         </div>
-        <Card>
-          {highRisks.map((risk) => (
-            <div key={risk.id} className={styles.listItem}>
-              <div className={styles.listItemContent}>
-                <Link href={`/risks/${risk.id}`}>
-                  <Text weight="semibold">{risk.id}: {risk.title}</Text>
-                </Link>
-                <Text size={200} style={{ color: tokens.colorNeutralForeground3 }}>
-                  Impact: {risk.impact} | Likelihood: {risk.likelihood}
-                </Text>
-              </div>
-              <Badge
-                appearance="filled"
-                color={risk.status === 'mitigated' ? 'success' : 'warning'}
-                className={styles.statusBadge}
-              >
-                {risk.status}
-              </Badge>
-            </div>
-          ))}
-        </Card>
-      </div>
-
-      <div className={styles.listSection}>
-        <div className={styles.sectionHeader}>
-          <Text size={500} weight="semibold">Pending Evidence</Text>
-          <Link href="/evidence">
-            <Button appearance="subtle" size="small">View all</Button>
-          </Link>
+        <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
+          <RoleSwitcher />
+          <Button className={styles.aiButton} shape="circular" icon={<SparkleRegular />}>Ask AI Copilot</Button>
         </div>
-        <Card>
-          {pendingEvidence.map((ev) => (
-            <div key={ev.id} className={styles.listItem}>
-              <div className={styles.listItemContent}>
-                <Text weight="semibold">{ev.title}</Text>
-                <Text size={200} style={{ color: tokens.colorNeutralForeground3 }}>
-                  {ev.fileName} • Uploaded {ev.uploadedAt}
-                </Text>
-              </div>
-              <Badge appearance="tint" color="informative" className={styles.statusBadge}>
-                {ev.status}
-              </Badge>
-            </div>
-          ))}
-        </Card>
+      </header>
+
+      {/* AI Summary Banner - Visible to all for "Wow" factor */}
+      {findingsSummary.length > 0 && <div style={{ marginBottom: '32px' }}><MultiSkillFindingsSummary findings={findingsSummary} /></div>}
+
+      <div style={{ marginTop: '24px' }}>
+        {currentRole === 'risk-owner' && <RiskOwnerDashboard />}
+        {currentRole === 'control-owner' && <ControlOwnerDashboard />}
+        {currentRole === 'auditor' && <AuditorDashboard />}
       </div>
     </div>
   );
