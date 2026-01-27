@@ -1,6 +1,6 @@
 # Multi-stage build for Next.js GRC App
 # Stage 1: Build
-FROM node:18-alpine AS builder
+FROM node:20-alpine AS builder
 
 WORKDIR /app
 
@@ -17,12 +17,14 @@ COPY . .
 RUN npm run build
 
 # Stage 2: Production Runtime
-FROM node:18-alpine
+FROM node:20-alpine
 
 WORKDIR /app
 
 # Set production environment
 ENV NODE_ENV=production
+ENV HOSTNAME=0.0.0.0
+ENV PORT=3000
 
 # Create non-root user for security
 RUN addgroup -g 1001 -S nodejs
