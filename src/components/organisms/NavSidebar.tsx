@@ -4,6 +4,9 @@ import {
     makeStyles,
     tokens,
     Button,
+    Badge,
+    shorthands,
+    Divider,
     Tooltip,
 } from '@fluentui/react-components';
 import {
@@ -132,13 +135,14 @@ const useStyles = makeStyles({
 
 const navItems = [
     { href: '/', label: 'Home', Icon: HomeIcon },
-    { href: '/requirements', label: 'Requirements', Icon: RequirementsIcon },
-    { href: '/risks', label: 'Risks', Icon: RisksIcon },
-    { href: '/controls', label: 'Controls', Icon: ControlsIcon },
-    { href: '/execution', label: 'Execution', Icon: ExecutionIcon },
+    { href: '/agents', label: 'Agents', Icon: BotRegular },
+    { href: '/execution', label: 'Action Center', Icon: ExecutionIcon },
     { href: '/evidence', label: 'Evidence', Icon: EvidenceIcon },
     { href: '/reporting', label: 'Reporting', Icon: ReportingIcon },
-    { href: '/automation', label: 'Automation', Icon: AutomationIcon },
+    { type: 'divider' as const },
+    { href: '/risks', label: 'Risks', Icon: RisksIcon },
+    { href: '/controls', label: 'Controls', Icon: ControlsIcon },
+    { href: '/requirements', label: 'Requirements', Icon: RequirementsIcon },
 ];
 
 export function NavSidebar() {
@@ -159,7 +163,12 @@ export function NavSidebar() {
             </div>
 
             <nav className={styles.nav}>
-                {navItems.map(({ href, label, Icon }) => {
+                {navItems.map((item, index) => {
+                    if ('type' in item && item.type === 'divider') {
+                        return <Divider key={`divider-${index}`} style={{ margin: '16px 12px' }} />;
+                    }
+
+                    const { href, label, Icon } = item as { href: string; label: string; Icon: any };
                     const active = isActive(href);
                     const itemClass = `${styles.navItem} ${active ? styles.navItemActive : ''} ${navSidebarCollapsed ? styles.navItemCollapsed : ''}`;
 

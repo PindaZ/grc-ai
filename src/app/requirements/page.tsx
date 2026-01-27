@@ -16,33 +16,20 @@ import {
     TableCell,
     TableCellLayout,
     shorthands,
+    useToastController,
+    Toast,
+    ToastTitle,
+    ToastIntent,
 } from '@fluentui/react-components';
 import { SearchRegular, AddRegular, FilterRegular, SparkleRegular } from '@fluentui/react-icons';
 import Link from 'next/link';
 import { requirements } from '@/data/fixtures';
 import { GlassCard } from '@/components/ui/GlassCard';
+import { PageHeader, QuickActionsBar } from '@/components/atoms';
 
 const useStyles = makeStyles({
     page: {
         padding: tokens.spacingHorizontalXXL,
-    },
-    header: {
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        marginBottom: '40px',
-        borderBottom: '1px solid rgba(255, 255, 255, 0.05)',
-        paddingBottom: '24px',
-    },
-    title: {
-        fontSize: '36px',
-        fontWeight: '800',
-        color: tokens.colorNeutralForeground1,
-        // textShadow: '0 2px 10px rgba(0, 112, 173, 0.3)',
-    },
-    actions: {
-        display: 'flex',
-        gap: tokens.spacingHorizontalS,
     },
     addBtn: {
         background: 'var(--brand-blue)',
@@ -67,27 +54,6 @@ const useStyles = makeStyles({
             ...shorthands.borderColor(tokens.colorBrandStroke1),
             boxShadow: tokens.shadow8,
         },
-    },
-    quickActions: {
-        display: 'flex',
-        gap: '12px',
-        padding: '12px 20px',
-        background: tokens.colorBrandBackground2,
-        backdropFilter: 'blur(8px)',
-        borderRadius: '16px',
-        ...shorthands.border('1px', 'solid', tokens.colorBrandStroke2),
-        marginBottom: '32px',
-        alignItems: 'center',
-    },
-    quickActionsLabel: {
-        display: 'flex',
-        alignItems: 'center',
-        gap: '8px',
-        color: '#17ABDA',
-        fontSize: '13px',
-        fontWeight: '700',
-        textTransform: 'uppercase',
-        letterSpacing: '1px',
     },
     aiActionBtn: {
         color: tokens.colorNeutralForeground2,
@@ -136,26 +102,33 @@ const useStyles = makeStyles({
 
 export default function RequirementsPage() {
     const styles = useStyles();
+    const { dispatchToast } = useToastController('global-toaster');
+
+    const notify = (title: string, intent: ToastIntent = 'success') => {
+        dispatchToast(
+            <Toast>
+                <ToastTitle>{title}</ToastTitle>
+            </Toast>,
+            { intent }
+        );
+    };
 
     return (
         <div className={styles.page}>
-            <div className={styles.header}>
-                <Text className={styles.title}>Requirements & Regulations</Text>
-                <div className={styles.actions}>
-                    <Button className={styles.addBtn} icon={<AddRegular />}>
-                        Add Requirement
-                    </Button>
-                </div>
-            </div>
+            <PageHeader
+                title="Requirements & Regulations"
+                description="Governance Mapping: Define the legislative and framework-level source of truth for all compliance operations."
+            >
+                <Button className={styles.addBtn} icon={<AddRegular />} onClick={() => notify('Requirement creation is currently disabled.')}>
+                    Add Requirement
+                </Button>
+            </PageHeader>
 
-            <div className={styles.quickActions}>
-                <span className={styles.quickActionsLabel}>
-                    <SparkleRegular /> AI Actions:
-                </span>
-                <Button size="small" appearance="subtle" className={styles.aiActionBtn}>Bulk generate risks</Button>
-                <Button size="small" appearance="subtle" className={styles.aiActionBtn}>Map to framework</Button>
-                <Button size="small" appearance="subtle" className={styles.aiActionBtn}>Check coverage</Button>
-            </div>
+            <QuickActionsBar>
+                <Button size="small" appearance="subtle" className={styles.aiActionBtn} onClick={() => notify('AI is analyzing requirements to generate risks...')}>Bulk generate risks</Button>
+                <Button size="small" appearance="subtle" className={styles.aiActionBtn} onClick={() => notify('Framework mapping updated.')}>Map to framework</Button>
+                <Button size="small" appearance="subtle" className={styles.aiActionBtn} onClick={() => notify('Coverage check: 98% requirements mapped.')}>Check coverage</Button>
+            </QuickActionsBar>
 
             <div className={styles.toolbar}>
                 <Input
@@ -174,6 +147,7 @@ export default function RequirementsPage() {
                             <TableHeaderCell>Title</TableHeaderCell>
                             <TableHeaderCell>Source</TableHeaderCell>
                             <TableHeaderCell>Status</TableHeaderCell>
+                            <TableHeaderCell>AI Coverage</TableHeaderCell>
                             <TableHeaderCell>Linked Risks</TableHeaderCell>
                         </TableRow>
                     </TableHeader>
@@ -202,6 +176,15 @@ export default function RequirementsPage() {
                                         className={styles.statusBadge}
                                     >
                                         {req.status}
+                                    </Badge>
+                                </TableCell>
+                                <TableCell>
+                                    <Badge
+                                        appearance="tint"
+                                        color={req.status === 'active' ? 'brand' : 'subtle'}
+                                        icon={<SparkleRegular />}
+                                    >
+                                        {req.status === 'active' ? '100%' : 'Analyzed'}
                                     </Badge>
                                 </TableCell>
                                 <TableCell style={{ color: tokens.colorNeutralForeground3, textAlign: 'center' }}>{req.linkedRiskIds.length}</TableCell>

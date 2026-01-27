@@ -14,6 +14,14 @@ import { GlassCard } from '@/components/ui/GlassCard';
 import { AnimatedChart } from '@/components/visuals/AnimatedChart';
 import { evidence } from '@/data/fixtures';
 import { allPendingFindings } from '@/data/aiFindings';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import {
+    useToastController,
+    Toast,
+    ToastTitle,
+    ToastIntent
+} from '@fluentui/react-components';
 
 const useStyles = makeStyles({
     bentoGrid: {
@@ -95,6 +103,16 @@ const useStyles = makeStyles({
         textTransform: 'uppercase',
         letterSpacing: '1px',
         fontWeight: '600',
+    },
+    statWidget: {
+        cursor: 'pointer',
+        textDecorationLine: 'none',
+        color: 'inherit',
+        display: 'flex',
+        flexDirection: 'column',
+        '&:hover': {
+            backgroundColor: tokens.colorNeutralBackgroundAlpha2,
+        }
     }
 });
 
@@ -108,6 +126,21 @@ const containerVariants = {
 
 export const AuditorDashboard = () => {
     const styles = useStyles();
+    const router = useRouter();
+    const { dispatchToast } = useToastController('global-toaster');
+
+    const notify = (title: string, intent: ToastIntent = 'success') => {
+        dispatchToast(
+            <Toast>
+                <ToastTitle>{title}</ToastTitle>
+            </Toast>,
+            { intent }
+        );
+    };
+
+    const handleReviewAction = (title: string, action: 'approved' | 'rejected') => {
+        notify(`Evidence "${title}" has been ${action}.`);
+    };
 
     // Data Processing
     const itemsToReview = evidence.filter(e => e.status === 'uploaded' || e.status === 'analyzed');
@@ -127,7 +160,7 @@ export const AuditorDashboard = () => {
             animate="show"
         >
             {/* Widget 1: Pending Reviews */}
-            <GlassCard variant="featured">
+            <GlassCard variant="featured" onClick={() => router.push('/evidence')} className={styles.statWidget}>
                 <div className={styles.widgetHeader}>
                     <div className={styles.iconBox} style={{ background: 'rgba(252, 225, 0, 0.15)', color: '#fce100', boxShadow: '0 0 15px rgba(252, 225, 0, 0.1)' }}>
                         <ClipboardTaskRegular fontSize={24} />
@@ -157,7 +190,7 @@ export const AuditorDashboard = () => {
             </GlassCard>
 
             {/* Widget 3: Open Findings */}
-            <GlassCard>
+            <GlassCard onClick={() => router.push('/risks')} className={styles.statWidget}>
                 <div className={styles.widgetHeader}>
                     <div className={styles.iconBox} style={{ background: 'rgba(209, 52, 56, 0.15)', color: '#d13438', boxShadow: '0 0 15px rgba(209, 52, 56, 0.1)' }}>
                         <DismissCircleRegular fontSize={24} />
@@ -205,8 +238,8 @@ export const AuditorDashboard = () => {
                                     </div>
                                 </div>
                                 <div style={{ display: 'flex', gap: '8px' }}>
-                                    <Button size="small" className={styles.iconBox} style={{ background: 'var(--brand-blue)', width: 'auto', padding: '0 12px', height: '32px' }} icon={<CheckmarkCircleRegular />}>Approve</Button>
-                                    <Button size="small" icon={<DismissCircleRegular />}>Reject</Button>
+                                    <Button size="small" className={styles.iconBox} style={{ background: 'var(--brand-blue)', width: 'auto', padding: '0 12px', height: '32px' }} icon={<CheckmarkCircleRegular />} onClick={() => handleReviewAction(item.title, 'approved')}>Approve</Button>
+                                    <Button size="small" icon={<DismissCircleRegular />} onClick={() => handleReviewAction(item.title, 'rejected')}>Reject</Button>
                                 </div>
                             </div>
                         ))

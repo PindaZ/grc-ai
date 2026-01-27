@@ -26,6 +26,8 @@ import { ControlHealthCard } from '@/components/molecules/ControlHealthCard';
 import { AgentActionCenter } from '@/components/organisms/AgentActionCenter';
 import { EvidenceTimeline } from '@/components/molecules/EvidenceTimeline';
 import { ControlHero } from '@/components/organisms/ControlHero';
+import { LiveMonitor } from '@/components/organisms/LiveMonitor';
+import { SmartMapper } from '@/components/molecules/SmartMapper';
 
 const useStyles = makeStyles({
     page: {
@@ -92,9 +94,9 @@ const useStyles = makeStyles({
 export default function ControlDetailPage() {
     const styles = useStyles();
     const params = useParams();
-    const [activeTab, setActiveTab] = useState('overview');
-
     const control = controls.find(c => c.id === params.id);
+    const [activeTab, setActiveTab] = useState(control?.automationStatus === 'autonomous' ? 'monitor' : 'overview');
+
     const linkedRisks = risks.filter(r => control?.linkedRiskIds.includes(r.id));
     const linkedEvidence = allEvidence.filter(e => control?.linkedEvidenceIds.includes(e.id));
     const actions = allActions.filter(a => a.controlId === params.id);
@@ -124,12 +126,29 @@ export default function ControlDetailPage() {
                 <div className={styles.mainStream}>
                     <GlassCard>
                         <div className={styles.contextTabs}>
+                            {control.automationStatus === 'autonomous' && (
+                                <div
+                                    className={activeTab === 'monitor' ? styles.activeTab : styles.tab}
+                                    onClick={() => setActiveTab('monitor')}
+                                >
+                                    <SparkleRegular style={{ marginRight: '6px', fontSize: '14px' }} />
+                                    Live Monitor
+                                </div>
+                            )}
                             <div
                                 className={activeTab === 'overview' ? styles.activeTab : styles.tab}
                                 onClick={() => setActiveTab('overview')}
                             >
                                 Overview
                             </div>
+                            {control.automationStatus === 'autonomous' && (
+                                <div
+                                    className={activeTab === 'mapping' ? styles.activeTab : styles.tab}
+                                    onClick={() => setActiveTab('mapping')}
+                                >
+                                    Configuration
+                                </div>
+                            )}
                             <div
                                 className={activeTab === 'procedure' ? styles.activeTab : styles.tab}
                                 onClick={() => setActiveTab('procedure')}
@@ -143,6 +162,14 @@ export default function ControlDetailPage() {
                                 Linked Risks
                             </div>
                         </div>
+
+                        {activeTab === 'monitor' && control.automationStatus === 'autonomous' && (
+                            <LiveMonitor controlId={control.id} />
+                        )}
+
+                        {activeTab === 'mapping' && control.automationStatus === 'autonomous' && (
+                            <SmartMapper />
+                        )}
 
                         {activeTab === 'overview' && (
                             <Text size={300} style={{ lineHeight: '1.6', color: tokens.colorNeutralForeground1 }}>

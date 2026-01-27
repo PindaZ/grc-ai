@@ -26,12 +26,17 @@ export interface Risk {
   updatedAt: string;
 }
 
+export type AutomationStatus = 'manual' | 'semiautonomous' | 'autonomous';
+
 export interface Control {
   id: string;
   title: string;
   description: string;
   procedure: string;
   status: 'draft' | 'active' | 'deprecated';
+  automationStatus?: AutomationStatus;
+  lastCheck?: string;
+  confidenceScore?: number;
   linkedRiskIds: string[];
   linkedEvidenceIds: string[];
   createdAt: string;

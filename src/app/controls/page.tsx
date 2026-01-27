@@ -14,45 +14,21 @@ import {
     TableHeaderCell,
     TableBody,
     TableCell,
+    Avatar,
+    useToastController,
+    Toast,
+    ToastTitle,
+    ToastIntent,
 } from '@fluentui/react-components';
 import { SearchRegular, AddRegular, FilterRegular, SparkleRegular } from '@fluentui/react-icons';
 import Link from 'next/link';
 import { controls } from '@/data/fixtures';
 import { GlassCard } from '@/components/ui/GlassCard';
-import { StatusBadge } from '@/components/atoms/Badges';
+import { StatusBadge, PageHeader, QuickActionsBar } from '@/components/atoms';
 
 const useStyles = makeStyles({
     page: {
         padding: tokens.spacingHorizontalXXL,
-    },
-    header: {
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        marginBottom: tokens.spacingVerticalXXL,
-    },
-    title: {
-        fontSize: '32px',
-        fontWeight: '800',
-        color: '#FFFFFF',
-        textShadow: '0 2px 10px rgba(0, 112, 173, 0.3)',
-    },
-    quickActions: {
-        display: 'flex',
-        gap: tokens.spacingHorizontalS,
-        padding: `${tokens.spacingVerticalS} ${tokens.spacingHorizontalM}`,
-        backgroundColor: tokens.colorNeutralBackground2,
-        borderRadius: tokens.borderRadiusMedium,
-        marginBottom: tokens.spacingVerticalL,
-        alignItems: 'center',
-    },
-    quickActionsLabel: {
-        display: 'flex',
-        alignItems: 'center',
-        gap: tokens.spacingHorizontalXS,
-        color: tokens.colorNeutralForeground3,
-        fontSize: tokens.fontSizeBase200,
-        marginRight: tokens.spacingHorizontalM,
     },
     toolbar: {
         display: 'flex',
@@ -70,26 +46,42 @@ const useStyles = makeStyles({
     },
 });
 
+const getAgentForControl = (id: string) => {
+    if (id.includes('ACC')) return 'Access Agent';
+    if (id.startsWith('PRIV')) return 'Privacy Agent';
+    if (id.includes('SOC') || id.startsWith('CTL-00')) return 'Security Agent';
+    return 'Policy Agent';
+};
+
 export default function ControlsPage() {
     const styles = useStyles();
+    const { dispatchToast } = useToastController('global-toaster');
+
+    const notify = (title: string, intent: ToastIntent = 'success') => {
+        dispatchToast(
+            <Toast>
+                <ToastTitle>{title}</ToastTitle>
+            </Toast>,
+            { intent }
+        );
+    };
 
     return (
         <div className={styles.page}>
-            <div className={styles.header}>
-                <Text className={styles.title}>Controls Library</Text>
-                <Button appearance="primary" icon={<AddRegular />}>
+            <PageHeader
+                title="Controls Library"
+                description="Defensive Strategy: Configure and manage the technical and operational safeguards monitored by AI Agents."
+            >
+                <Button appearance="primary" icon={<AddRegular />} onClick={() => notify('Control creation is currently disabled.')}>
                     Add Control
                 </Button>
-            </div>
+            </PageHeader>
 
-            <div className={styles.quickActions}>
-                <span className={styles.quickActionsLabel}>
-                    <SparkleRegular /> AI Actions:
-                </span>
-                <Button size="small" appearance="subtle">Check all completeness</Button>
-                <Button size="small" appearance="subtle">Generate procedures</Button>
-                <Button size="small" appearance="subtle">Find evidence gaps</Button>
-            </div>
+            <QuickActionsBar>
+                <Button size="small" appearance="subtle" onClick={() => notify('Checking completeness for 24 controls...')}>Check all completeness</Button>
+                <Button size="small" appearance="subtle" onClick={() => notify('AI is generating procedure drafts...')}>Generate procedures</Button>
+                <Button size="small" appearance="subtle" onClick={() => notify('3 evidence gaps identified.')}>Find evidence gaps</Button>
+            </QuickActionsBar>
 
             <div className={styles.toolbar}>
                 <Input
@@ -104,11 +96,12 @@ export default function ControlsPage() {
                 <Table>
                     <TableHeader>
                         <TableRow>
-                            <TableHeaderCell style={{ color: 'rgba(255,255,255,0.9)', fontWeight: '700', padding: '24px 20px', letterSpacing: '2px', fontSize: '12px' }}>ID</TableHeaderCell>
-                            <TableHeaderCell style={{ color: 'rgba(255,255,255,0.9)', fontWeight: '700', padding: '24px 20px', letterSpacing: '2px', fontSize: '12px' }}>TITLE</TableHeaderCell>
-                            <TableHeaderCell style={{ color: 'rgba(255,255,255,0.9)', fontWeight: '700', padding: '24px 20px', letterSpacing: '2px', fontSize: '12px' }}>STATUS</TableHeaderCell>
-                            <TableHeaderCell style={{ color: 'rgba(255,255,255,0.9)', fontWeight: '700', padding: '24px 20px', letterSpacing: '2px', fontSize: '12px' }}>LINKS</TableHeaderCell>
-                            <TableHeaderCell style={{ color: 'rgba(255,255,255,0.9)', fontWeight: '700', padding: '24px 20px', letterSpacing: '2px', fontSize: '12px' }}>EVIDENCE</TableHeaderCell>
+                            <TableHeaderCell style={{ color: tokens.colorNeutralForeground2, fontWeight: '700', padding: '24px 20px', letterSpacing: '2px', fontSize: '12px' }}>ID</TableHeaderCell>
+                            <TableHeaderCell style={{ color: tokens.colorNeutralForeground2, fontWeight: '700', padding: '24px 20px', letterSpacing: '2px', fontSize: '12px' }}>TITLE</TableHeaderCell>
+                            <TableHeaderCell style={{ color: tokens.colorNeutralForeground2, fontWeight: '700', padding: '24px 20px', letterSpacing: '2px', fontSize: '12px' }}>STATUS</TableHeaderCell>
+                            <TableHeaderCell style={{ color: tokens.colorNeutralForeground2, fontWeight: '700', padding: '24px 20px', letterSpacing: '2px', fontSize: '12px' }}>LINKS</TableHeaderCell>
+                            <TableHeaderCell style={{ color: tokens.colorNeutralForeground2, fontWeight: '700', padding: '24px 20px', letterSpacing: '2px', fontSize: '12px' }}>MONITORED BY</TableHeaderCell>
+                            <TableHeaderCell style={{ color: tokens.colorNeutralForeground2, fontWeight: '700', padding: '24px 20px', letterSpacing: '2px', fontSize: '12px' }}>EVIDENCE</TableHeaderCell>
                         </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -128,6 +121,17 @@ export default function ControlsPage() {
                                     <StatusBadge status={control.status} />
                                 </TableCell>
                                 <TableCell>{control.linkedRiskIds.length}</TableCell>
+                                <TableCell>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                        <Avatar
+                                            name={getAgentForControl(control.id)}
+                                            size={20}
+                                            color="brand"
+                                            icon={<SparkleRegular fontSize={12} />}
+                                        />
+                                        <Text size={200} weight="medium">{getAgentForControl(control.id)}</Text>
+                                    </div>
+                                </TableCell>
                                 <TableCell>{control.linkedEvidenceIds.length}</TableCell>
                             </TableRow>
                         ))}

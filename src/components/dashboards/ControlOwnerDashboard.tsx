@@ -14,6 +14,13 @@ import { GlassCard } from '@/components/ui/GlassCard';
 import { AnimatedChart } from '@/components/visuals/AnimatedChart';
 import { controlActivities, controls, evidence } from '@/data/fixtures';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import {
+    useToastController,
+    Toast,
+    ToastTitle,
+    ToastIntent
+} from '@fluentui/react-components';
 
 const useStyles = makeStyles({
     bentoGrid: {
@@ -74,14 +81,25 @@ const useStyles = makeStyles({
         borderRadius: '8px',
         background: tokens.colorNeutralBackgroundAlpha,
         border: `1px solid ${tokens.colorNeutralStrokeSubtle}`,
-        transition: 'background 0.2s',
+        transition: 'all 0.2s ease',
         '&:hover': {
             background: tokens.colorNeutralBackgroundAlpha2,
+            transform: 'translateX(4px)',
         },
     },
     progressBar: {
         marginTop: '8px',
         marginBottom: '4px',
+    },
+    statWidget: {
+        cursor: 'pointer',
+        textDecorationLine: 'none',
+        color: 'inherit',
+        display: 'flex',
+        flexDirection: 'column',
+        '&:hover': {
+            backgroundColor: tokens.colorNeutralBackgroundAlpha2,
+        }
     }
 });
 
@@ -95,6 +113,17 @@ const containerVariants = {
 
 export const ControlOwnerDashboard = () => {
     const styles = useStyles();
+    const router = useRouter();
+    const { dispatchToast } = useToastController('global-toaster');
+
+    const notify = (title: string, intent: ToastIntent = 'success') => {
+        dispatchToast(
+            <Toast>
+                <ToastTitle>{title}</ToastTitle>
+            </Toast>,
+            { intent }
+        );
+    };
 
     // Data Processing
     // In a real app, filtering by current user ID would happen here.
@@ -112,7 +141,7 @@ export const ControlOwnerDashboard = () => {
             animate="show"
         >
             {/* Widget 1: Open Actions */}
-            <GlassCard variant="featured">
+            <GlassCard variant="featured" onClick={() => router.push('/execution')} className={styles.statWidget}>
                 <div className={styles.widgetHeader}>
                     <div className={styles.iconBox} style={{ background: 'rgba(0, 120, 212, 0.2)', color: '#0078d4' }}>
                         <CheckmarkCircleRegular fontSize={24} />
@@ -144,7 +173,7 @@ export const ControlOwnerDashboard = () => {
             </GlassCard>
 
             {/* Widget 3: Evidence Gaps */}
-            <GlassCard>
+            <GlassCard onClick={() => router.push('/evidence')} className={styles.statWidget}>
                 <div className={styles.widgetHeader}>
                     <div className={styles.iconBox} style={{ background: 'rgba(209, 52, 56, 0.2)', color: '#d13438' }}>
                         <DocumentArrowUpRegular fontSize={24} />
@@ -177,13 +206,13 @@ export const ControlOwnerDashboard = () => {
                 <div className={styles.listContainer}>
                     {myPendingActions.slice(0, 5).map(action => (
                         <div key={action.id} className={styles.listItem}>
-                            <div>
+                            <div style={{ cursor: 'pointer', flex: 1 }} onClick={() => router.push('/execution')}>
                                 <Text weight="semibold" style={{ display: 'block', color: tokens.colorNeutralForeground1 }}>{action.title}</Text>
                                 <Text size={200} style={{ color: tokens.colorNeutralForeground3 }}>
                                     Due: {new Date(action.dueDate).toLocaleDateString()}
                                 </Text>
                             </div>
-                            <Button appearance="primary" size="small" icon={<ArrowRightRegular />}>Execute</Button>
+                            <Button appearance="primary" size="small" icon={<ArrowRightRegular />} onClick={() => router.push('/execution')}>Execute</Button>
                         </div>
                     ))}
                     {myPendingActions.length === 0 && (
@@ -203,13 +232,13 @@ export const ControlOwnerDashboard = () => {
                 <div className={styles.listContainer}>
                     {evidenceNeeded.slice(0, 5).map(control => (
                         <div key={control.id} className={styles.listItem}>
-                            <div style={{ flex: 1 }}>
+                            <div style={{ flex: 1, cursor: 'pointer' }} onClick={() => router.push('/evidence')}>
                                 <Text weight="semibold" style={{ display: 'block', color: tokens.colorNeutralForeground1 }}>{control.title}</Text>
                                 <Text size={200} style={{ color: tokens.colorNeutralForeground3 }}>
                                     {control.id}
                                 </Text>
                             </div>
-                            <Button size="small" icon={<DocumentArrowUpRegular />}>Upload</Button>
+                            <Button size="small" icon={<DocumentArrowUpRegular />} onClick={() => router.push('/evidence')}>Upload</Button>
                         </div>
                     ))}
                 </div>

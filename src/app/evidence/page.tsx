@@ -26,46 +26,20 @@ import {
     DialogActions,
     Spinner,
     shorthands,
+    useToastController,
+    Toast,
+    ToastTitle,
+    ToastIntent,
 } from '@fluentui/react-components';
 import { SearchRegular, AddRegular, SparkleRegular, ArrowUploadRegular } from '@fluentui/react-icons';
 import { useState } from 'react';
 import { evidence, controls } from '@/data/fixtures';
 import { GlassCard } from '@/components/ui/GlassCard';
-import { StatusBadge } from '@/components/atoms/Badges';
+import { StatusBadge, PageHeader, QuickActionsBar } from '@/components/atoms';
 
 const useStyles = makeStyles({
     page: {
         padding: tokens.spacingHorizontalXXL,
-    },
-    header: {
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        marginBottom: tokens.spacingVerticalXXL,
-    },
-    title: {
-        fontSize: '36px',
-        fontWeight: '800',
-        color: tokens.colorNeutralForeground1,
-        // textShadow: '0 2px 10px rgba(0, 112, 173, 0.3)',
-    },
-    quickActions: {
-        display: 'flex',
-        gap: tokens.spacingHorizontalS,
-        padding: `${tokens.spacingVerticalS} ${tokens.spacingHorizontalM}`,
-        backgroundColor: tokens.colorBrandBackground2,
-        borderRadius: tokens.borderRadiusMedium,
-        marginBottom: tokens.spacingVerticalL,
-        border: `1px solid ${tokens.colorBrandStroke2}`,
-        alignItems: 'center',
-    },
-    quickActionsLabel: {
-        display: 'flex',
-        alignItems: 'center',
-        gap: tokens.spacingHorizontalXS,
-        color: tokens.colorNeutralForeground3,
-        fontSize: tokens.fontSizeBase200,
-        marginRight: tokens.spacingHorizontalM,
     },
     toolbar: {
         display: 'flex',
@@ -124,6 +98,16 @@ export default function EvidencePage() {
     const [activeTab, setActiveTab] = useState('inbox');
     const [isAnalyzing, setIsAnalyzing] = useState(false);
     const [showAnalysis, setShowAnalysis] = useState(false);
+    const { dispatchToast } = useToastController('global-toaster');
+
+    const notify = (title: string, intent: ToastIntent = 'success') => {
+        dispatchToast(
+            <Toast>
+                <ToastTitle>{title}</ToastTitle>
+            </Toast>,
+            { intent }
+        );
+    };
 
     const handleAnalyze = () => {
         setIsAnalyzing(true);
@@ -135,8 +119,10 @@ export default function EvidencePage() {
 
     return (
         <div className={styles.page}>
-            <div className={styles.header}>
-                <Text className={styles.title}>Evidence & Testing</Text>
+            <PageHeader
+                title="Evidence & Testing"
+                description="Audit Vault: Centralized repository of immutable logs, screenshots, and proof collected by the AI workforce."
+            >
                 <Dialog>
                     <DialogTrigger disableButtonEnhancement>
                         <Button appearance="primary" icon={<ArrowUploadRegular />}>Upload Evidence</Button>
@@ -182,22 +168,22 @@ export default function EvidencePage() {
                                     <Button appearance="secondary">Cancel</Button>
                                 </DialogTrigger>
                                 {showAnalysis && (
-                                    <Button appearance="primary">Attach to Control</Button>
+                                    <Button appearance="primary" onClick={() => {
+                                        setShowAnalysis(false);
+                                        notify('Evidence successfully attached to CTL-001.');
+                                    }}>Attach to Control</Button>
                                 )}
                             </DialogActions>
                         </DialogBody>
                     </DialogSurface>
                 </Dialog>
-            </div>
+            </PageHeader>
 
-            <div className={styles.quickActions}>
-                <span className={styles.quickActionsLabel}>
-                    <SparkleRegular /> AI Actions:
-                </span>
-                <Button size="small" appearance="subtle">Analyze all pending</Button>
-                <Button size="small" appearance="subtle">Auto-match to controls</Button>
-                <Button size="small" appearance="subtle">Extract fields</Button>
-            </div>
+            <QuickActionsBar>
+                <Button size="small" appearance="subtle" onClick={() => notify('AI is analyzing 2 pending evidence items...')}>Analyze all pending</Button>
+                <Button size="small" appearance="subtle" onClick={() => notify('AI matched 4 files to controls automatically.')}>Auto-match to controls</Button>
+                <Button size="small" appearance="subtle" onClick={() => notify('Metadata extraction in progress...')}>Extract fields</Button>
+            </QuickActionsBar>
 
             <TabList selectedValue={activeTab} onTabSelect={(_, d) => setActiveTab(d.value as string)}>
                 <Tab value="inbox">Evidence Inbox</Tab>

@@ -28,20 +28,12 @@ import {
 import { useState } from 'react';
 import { skills, recipes, automationLogs, automationJobs } from '@/data/fixtures';
 
+import { PageHeader, QuickActionsBar } from '@/components/atoms';
+
 const useStyles = makeStyles({
     page: {
         padding: tokens.spacingHorizontalXXL,
         maxWidth: '1400px',
-    },
-    header: {
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        marginBottom: tokens.spacingVerticalXXL,
-    },
-    title: {
-        fontSize: tokens.fontSizeHero700,
-        fontWeight: tokens.fontWeightSemibold,
     },
     content: {
         marginTop: tokens.spacingVerticalL,
@@ -153,10 +145,18 @@ export default function AutomationPage() {
 
     return (
         <div className={styles.page}>
-            <div className={styles.header}>
-                <Text className={styles.title}>AI Automation Hub</Text>
+            <PageHeader
+                title="AI Automation Hub"
+                description="Orchestration Layer: Deploy and monitor autonomous agents executing GRC workflows across your technical landscape."
+            >
                 <Button appearance="primary" icon={<PlayRegular />}>Run Automation</Button>
-            </div>
+            </PageHeader>
+
+            <QuickActionsBar>
+                <Button size="small" appearance="subtle">Sync with HRIS</Button>
+                <Button size="small" appearance="subtle">Rotate API Keys</Button>
+                <Button size="small" appearance="subtle">Export Jobs Log</Button>
+            </QuickActionsBar>
 
             <TabList selectedValue={activeTab} onTabSelect={(_, d) => setActiveTab(d.value as string)}>
                 <Tab value="overview">Overview</Tab>

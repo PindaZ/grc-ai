@@ -15,6 +15,7 @@ import {
   CalendarRegular,
   ShieldCheckmarkRegular,
   MoreHorizontalRegular,
+  BotRegular,
 } from '@fluentui/react-icons';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
@@ -24,10 +25,13 @@ import { allPendingFindings, uarFindings, soc2Findings, regulatoryFindings, cont
 import { MultiSkillFindingsSummary } from '@/components/organisms/AIFindingsBanner';
 import { GlassCard } from '@/components/ui/GlassCard';
 import { AnimatedChart } from '@/components/visuals/AnimatedChart';
-import { RoleSwitcher } from '@/components/ui/RoleSwitcher';
 import { RiskOwnerDashboard } from '@/components/dashboards/RiskOwnerDashboard';
 import { ControlOwnerDashboard } from '@/components/dashboards/ControlOwnerDashboard';
 import { AuditorDashboard } from '@/components/dashboards/AuditorDashboard';
+import { useState } from 'react';
+import { AgentStatusWidget } from '@/components/organisms/AgentStatusWidget';
+import { AgentActivityTicker } from '@/components/organisms/AgentActivityTicker';
+import { Divider } from '@fluentui/react-components';
 
 const useStyles = makeStyles({
   page: {
@@ -177,16 +181,19 @@ const containerVariants = {
   }
 };
 
+import { useRouter } from 'next/navigation';
+
 export default function HomePage() {
   const styles = useStyles();
-  const { currentRole } = useApp();
+  const router = useRouter();
+  const { currentRole, currentClient } = useApp();
 
   // AI Findings Summary Data (kept global for now or could be moved to specific dashboards)
   const findingsSummary = [
-    { skillName: 'User Access Review', count: uarFindings.filter(f => f.status === 'pending').length, highCount: uarFindings.filter(f => f.status === 'pending' && f.severity === 'high').length, path: '/automation/uar' },
-    { skillName: 'SOC2 Parser', count: soc2Findings.filter(f => f.status === 'pending').length, highCount: soc2Findings.filter(f => f.status === 'pending' && f.severity === 'high').length, path: '/automation/soc2' },
-    { skillName: 'Regulatory Mapping', count: regulatoryFindings.filter(f => f.status === 'pending').length, highCount: regulatoryFindings.filter(f => f.status === 'pending' && f.severity === 'high').length, path: '/automation/regulatory' },
-    { skillName: 'Contract Analysis', count: contractFindings.filter(f => f.status === 'pending').length, highCount: contractFindings.filter(f => f.status === 'pending' && f.severity === 'high').length, path: '/automation/contracts' },
+    { skillName: 'User Access Review', count: uarFindings.filter(f => f.status === 'pending').length, highCount: uarFindings.filter(f => f.status === 'pending' && f.severity === 'high').length, path: '/agents' },
+    { skillName: 'SOC2 Parser', count: soc2Findings.filter(f => f.status === 'pending').length, highCount: soc2Findings.filter(f => f.status === 'pending' && f.severity === 'high').length, path: '/agents' },
+    { skillName: 'Regulatory Mapping', count: regulatoryFindings.filter(f => f.status === 'pending').length, highCount: regulatoryFindings.filter(f => f.status === 'pending' && f.severity === 'high').length, path: '/requirements' },
+    { skillName: 'Contract Analysis', count: contractFindings.filter(f => f.status === 'pending').length, highCount: contractFindings.filter(f => f.status === 'pending' && f.severity === 'high').length, path: '/evidence' },
   ].filter(f => f.count > 0);
 
   const getRoleLabel = (role: string) => {
@@ -202,26 +209,41 @@ export default function HomePage() {
     <div className={styles.page}>
       <header className={styles.header}>
         <div>
-          <Text className={styles.title}>Welcome back, {getRoleLabel(currentRole)}</Text>
+          <Text className={styles.title}>
+            {`Welcome back, ${getRoleLabel(currentRole)} for ${currentClient.name}`}
+          </Text>
           <Text className={styles.subtitle}>
-            {currentRole === 'risk-owner' && "Here is the current risk landscape and exposure analysis."}
-            {currentRole === 'control-owner' && "You have pending actions and evidence uploads requiring attention."}
-            {currentRole === 'auditor' && "Overview of compliance gaps, findings, and audit schedules."}
+            {(currentRole === 'risk-owner' && "Here is the current risk landscape and exposure analysis.") ||
+              (currentRole === 'control-owner' && "You have pending actions and evidence uploads requiring attention.") ||
+              (currentRole === 'auditor' && "Overview of compliance gaps, findings, and audit schedules.")
+            }
           </Text>
         </div>
-        <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
-          <RoleSwitcher />
-          <Button className={styles.aiButton} shape="circular" icon={<SparkleRegular />}>Ask AI Copilot</Button>
+        <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+          {/* Action buttons removed as per user feedback */}
         </div>
       </header>
 
       {/* AI Summary Banner - Visible to all for "Wow" factor */}
       {findingsSummary.length > 0 && <div style={{ marginBottom: '32px' }}><MultiSkillFindingsSummary findings={findingsSummary} /></div>}
 
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px', marginBottom: '32px' }}>
+        <GlassCard style={{ padding: 0 }}>
+          <AgentStatusWidget />
+        </GlassCard>
+        <GlassCard style={{ padding: 0 }}>
+          <AgentActivityTicker />
+        </GlassCard>
+      </div>
+
+      <Divider style={{ marginBottom: '32px' }}>Operational View</Divider>
+
       <div style={{ marginTop: '24px' }}>
-        {currentRole === 'risk-owner' && <RiskOwnerDashboard />}
-        {currentRole === 'control-owner' && <ControlOwnerDashboard />}
-        {currentRole === 'auditor' && <AuditorDashboard />}
+        <>
+          {currentRole === 'risk-owner' && <RiskOwnerDashboard />}
+          {currentRole === 'control-owner' && <ControlOwnerDashboard />}
+          {currentRole === 'auditor' && <AuditorDashboard />}
+        </>
       </div>
     </div>
   );

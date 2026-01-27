@@ -5,18 +5,12 @@ import { ExceptionReviewTable } from '@/components/organisms/ExceptionReviewTabl
 import { Breadcrumbs } from '@/components/molecules/Breadcrumbs';
 import { uarFindings, controlSkills } from '@/data/aiFindings';
 
+import { PageHeader } from '@/components/atoms';
+
 const useStyles = makeStyles({
     page: {
         padding: tokens.spacingHorizontalXL,
         maxWidth: '1400px',
-    },
-    header: {
-        marginBottom: tokens.spacingVerticalL,
-    },
-    description: {
-        color: tokens.colorNeutralForeground3,
-        marginTop: tokens.spacingVerticalS,
-        maxWidth: '800px',
     },
 });
 
@@ -43,13 +37,10 @@ export default function UARReviewPage() {
         <div className={styles.page}>
             <Breadcrumbs />
 
-            <div className={styles.header}>
-                <Text as="h1" size={700} weight="bold">User Access Review</Text>
-                <Text className={styles.description}>
-                    AI automatically compared HR system data with IAM permissions. Review the findings
-                    below to approve remediation actions or dismiss false positives.
-                </Text>
-            </div>
+            <PageHeader
+                title="User Access Review"
+                description="Identity Governance: AI automatically compared HR system data with IAM permissions. Review the findings below to approve remediation actions or dismiss false positives."
+            />
 
             <Divider style={{ marginBottom: tokens.spacingVerticalL }} />
 

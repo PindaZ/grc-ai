@@ -7,11 +7,17 @@ import {
     Text,
     Button,
     Badge,
+    useToastController,
+    Toast,
+    ToastTitle,
+    ToastIntent,
 } from '@fluentui/react-components';
 import { SparkleRegular, AddRegular } from '@fluentui/react-icons';
 import Link from 'next/link';
 import { useState } from 'react';
 import { controlActivities, controls } from '@/data/fixtures';
+import { PageHeader, QuickActionsBar } from '@/components/atoms';
+import { GlassCard } from '@/components/ui/GlassCard';
 
 const useStyles = makeStyles({
     page: {
@@ -19,33 +25,6 @@ const useStyles = makeStyles({
         height: 'calc(100vh - 120px)',
         display: 'flex',
         flexDirection: 'column',
-    },
-    header: {
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        marginBottom: tokens.spacingVerticalL,
-    },
-    title: {
-        fontSize: tokens.fontSizeHero700,
-        fontWeight: tokens.fontWeightSemibold,
-    },
-    quickActions: {
-        display: 'flex',
-        gap: tokens.spacingHorizontalS,
-        padding: `${tokens.spacingVerticalS} ${tokens.spacingHorizontalM}`,
-        backgroundColor: tokens.colorNeutralBackground2,
-        borderRadius: tokens.borderRadiusMedium,
-        marginBottom: tokens.spacingVerticalL,
-        alignItems: 'center',
-    },
-    quickActionsLabel: {
-        display: 'flex',
-        alignItems: 'center',
-        gap: tokens.spacingHorizontalXS,
-        color: tokens.colorNeutralForeground3,
-        fontSize: tokens.fontSizeBase200,
-        marginRight: tokens.spacingHorizontalM,
     },
     board: {
         display: 'grid',
@@ -116,6 +95,16 @@ const columns = [
 export default function ExecutionPage() {
     const styles = useStyles();
     const [activities, setActivities] = useState(controlActivities);
+    const { dispatchToast } = useToastController('global-toaster');
+
+    const notify = (title: string, intent: ToastIntent = 'success') => {
+        dispatchToast(
+            <Toast>
+                <ToastTitle>{title}</ToastTitle>
+            </Toast>,
+            { intent }
+        );
+    };
 
     const getActivitiesForColumn = (status: string) => {
         return activities.filter(a => a.status === status);
@@ -127,19 +116,18 @@ export default function ExecutionPage() {
 
     return (
         <div className={styles.page}>
-            <div className={styles.header}>
-                <Text className={styles.title}>Control Execution</Text>
-                <Button appearance="primary" icon={<AddRegular />}>Add Activity</Button>
-            </div>
+            <PageHeader
+                title="AI Action Center"
+                description="Human-in-the-Loop Orchestration: Review, verify, and resolve compliance tasks escalated by the digital workforce."
+            >
+                <Button appearance="primary" icon={<AddRegular />} onClick={() => notify('New task creation is currently disabled.')}>Add Task</Button>
+            </PageHeader>
 
-            <div className={styles.quickActions}>
-                <span className={styles.quickActionsLabel}>
-                    <SparkleRegular /> AI Actions:
-                </span>
-                <Button size="small" appearance="subtle">Prioritize tasks</Button>
-                <Button size="small" appearance="subtle">Flag overdue items</Button>
-                <Button size="small" appearance="subtle">Suggest assignments</Button>
-            </div>
+            <QuickActionsBar>
+                <Button size="small" appearance="subtle" onClick={() => notify('Tasks prioritized based on risk and effort.')}>Prioritize tasks</Button>
+                <Button size="small" appearance="subtle" onClick={() => notify('3 overdue items flagged.')}>Flag overdue items</Button>
+                <Button size="small" appearance="subtle" onClick={() => notify('AI suggested optimal assignments.')}>Suggest assignments</Button>
+            </QuickActionsBar>
 
             <div className={styles.board}>
                 {columns.map(column => {
@@ -151,10 +139,17 @@ export default function ExecutionPage() {
                                 <span className={styles.columnCount}>{columnActivities.length}</span>
                             </div>
                             <div className={styles.cardList}>
-                                {columnActivities.map(activity => (
+                                {columnActivities.map((activity, idx) => (
                                     <Link key={activity.id} href={`/controls/${activity.controlId}`}>
-                                        <Card className={styles.activityCard}>
-                                            <Text className={styles.cardTitle}>{activity.title}</Text>
+                                        <GlassCard className={styles.activityCard}>
+                                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
+                                                <Text className={styles.cardTitle}>{activity.title}</Text>
+                                                {activity.status !== 'done' && (
+                                                    <Badge color="brand" appearance="tint" icon={<SparkleRegular />}>
+                                                        {85 + (idx * 3) % 15}%
+                                                    </Badge>
+                                                )}
+                                            </div>
                                             <Text className={styles.cardMeta} block>
                                                 {getControlTitle(activity.controlId)}
                                             </Text>
@@ -164,7 +159,7 @@ export default function ExecutionPage() {
                                                     {activity.assigneeId}
                                                 </Badge>
                                             </div>
-                                        </Card>
+                                        </GlassCard>
                                     </Link>
                                 ))}
                             </div>

@@ -5,3 +5,4 @@ export { AISidebar } from './AISidebar';
 export { ExceptionReviewTable } from './ExceptionReviewTable';
 export { AutomationStatusCard } from './AutomationStatusCard';
 export { AIFindingsBanner, MultiSkillFindingsSummary } from './AIFindingsBanner';
+export { ClientSwitcher } from './ClientSwitcher';

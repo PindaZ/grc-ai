@@ -1,5 +1,7 @@
 'use client';
 
+import { Fragment } from 'react';
+
 import { makeStyles, tokens, Text, Badge, Button, Avatar } from '@fluentui/react-components';
 import {
     AlertUrgentRegular,
@@ -13,6 +15,14 @@ import { GlassCard } from '@/components/ui/GlassCard';
 import { AnimatedChart } from '@/components/visuals/AnimatedChart';
 import { risks, controls } from '@/data/fixtures';
 import { Risk } from '@/types';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import {
+    useToastController,
+    Toast,
+    ToastTitle,
+    ToastIntent
+} from '@fluentui/react-components';
 
 const useStyles = makeStyles({
     bentoGrid: {
@@ -108,6 +118,16 @@ const useStyles = makeStyles({
             background: tokens.colorNeutralBackgroundAlpha2,
         },
     },
+    statWidget: {
+        cursor: 'pointer',
+        textDecorationLine: 'none',
+        color: 'inherit',
+        display: 'flex',
+        flexDirection: 'column',
+        '&:hover': {
+            backgroundColor: tokens.colorNeutralBackgroundAlpha2,
+        }
+    }
 });
 
 const containerVariants = {
@@ -120,6 +140,17 @@ const containerVariants = {
 
 export const RiskOwnerDashboard = () => {
     const styles = useStyles();
+    const router = useRouter();
+    const { dispatchToast } = useToastController('global-toaster');
+
+    const notify = (title: string, intent: ToastIntent = 'success') => {
+        dispatchToast(
+            <Toast>
+                <ToastTitle>{title}</ToastTitle>
+            </Toast>,
+            { intent }
+        );
+    };
 
     // Data Processing
     const highRisks = risks.filter(r => r.impact * r.likelihood >= 16); // High severity
@@ -150,7 +181,7 @@ export const RiskOwnerDashboard = () => {
             animate="show"
         >
             {/* Widget 1: Total Risks */}
-            <GlassCard>
+            <GlassCard onClick={() => router.push('/risks')} className={styles.statWidget}>
                 <div className={styles.widgetHeader}>
                     <div className={styles.iconBox}><AlertUrgentRegular fontSize={24} /></div>
                 </div>
@@ -162,7 +193,7 @@ export const RiskOwnerDashboard = () => {
             </GlassCard>
 
             {/* Widget 2: Critical Risks */}
-            <GlassCard variant="featured">
+            <GlassCard variant="featured" onClick={() => router.push('/risks')} className={styles.statWidget}>
                 <div className={styles.widgetHeader}>
                     <div className={styles.iconBox} style={{ background: 'rgba(209, 52, 56, 0.2)', color: '#d13438' }}>
                         <AlertUrgentRegular fontSize={24} />
@@ -190,7 +221,7 @@ export const RiskOwnerDashboard = () => {
             </GlassCard>
 
             {/* Widget 4: Risk Velocity */}
-            <GlassCard>
+            <GlassCard onClick={() => router.push('/reporting')} className={styles.statWidget}>
                 <div className={styles.widgetHeader}>
                     <div className={styles.iconBox}><ArrowTrendingLinesRegular fontSize={24} /></div>
                 </div>
@@ -214,22 +245,25 @@ export const RiskOwnerDashboard = () => {
                 <div className={styles.heatmap}>
                     {/* 5x5 Grid: Impact (y) vs Likelihood (x) */}
                     {[5, 4, 3, 2, 1].map(impact => (
-                        [1, 2, 3, 4, 5].map(likelihood => {
-                            const count = getRiskCountForCell(impact, likelihood);
-                            return (
-                                <div
-                                    key={`${impact}-${likelihood}`}
-                                    className={styles.heatmapCell}
-                                    style={{
-                                        backgroundColor: count > 0 ? getCellColor(impact, likelihood) : 'rgba(255,255,255,0.05)',
-                                        opacity: count > 0 ? 1 : 0.3
-                                    }}
-                                    title={`Impact: ${impact}, Likelihood: ${likelihood}`}
-                                >
-                                    {count > 0 ? count : ''}
-                                </div>
-                            );
-                        })
+                        <Fragment key={impact}>
+                            {[1, 2, 3, 4, 5].map(likelihood => {
+                                const count = getRiskCountForCell(impact, likelihood);
+                                return (
+                                    <div
+                                        key={`${impact}-${likelihood}`}
+                                        className={styles.heatmapCell}
+                                        style={{
+                                            backgroundColor: count > 0 ? getCellColor(impact, likelihood) : 'rgba(255,255,255,0.05)',
+                                            opacity: count > 0 ? 1 : 0.3
+                                        }}
+                                        title={`Impact: ${impact}, Likelihood: ${likelihood}`}
+                                        onClick={() => router.push(`/risks?impact=${impact}&likelihood=${likelihood}`)}
+                                    >
+                                        {count > 0 ? count : ''}
+                                    </div>
+                                );
+                            })}
+                        </Fragment>
                     ))}
                 </div>
                 <div style={{ textAlign: 'center', marginTop: '8px', fontSize: '12px', color: tokens.colorNeutralForeground3 }}>
@@ -260,7 +294,7 @@ export const RiskOwnerDashboard = () => {
                                         Impact: {risk.impact} • Likelihood: {risk.likelihood}
                                     </Text>
                                 </div>
-                                <Button appearance="primary" size="small">Add Control</Button>
+                                <Button appearance="primary" size="small" onClick={() => notify(`Drafting control request for ${risk.title}...`)}>Add Control</Button>
                             </div>
                         ))
                     )}

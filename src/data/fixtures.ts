@@ -74,15 +74,15 @@ export const risks: Risk[] = [
 export const controls: Control[] = [
     // Change Management
     { id: 'CTL-CM-01', title: 'CAB Approval Process', description: 'All normal changes must be approved by the Change Advisory Board.', procedure: '1. Create ticket\n2. Attach risk analysis\n3. CAB vote\n4. Deploy', status: 'active', linkedRiskIds: ['RISK-CM-01', 'RISK-CM-03'], linkedEvidenceIds: ['EVD-CM-01'], createdAt: '2024-01-12', updatedAt: '2024-01-12' },
-    { id: 'CTL-CM-02', title: 'CI/CD Automated Gates', description: 'Pipeline blocks deployment if unit tests or security scans fail.', procedure: '1. Commit code\n2. Run pipeline\n3. Pass SAST/Tests', status: 'active', linkedRiskIds: ['RISK-CM-01', 'RISK-CM-02'], linkedEvidenceIds: ['EVD-CM-02'], createdAt: '2024-01-12', updatedAt: '2024-01-12' },
-    { id: 'CTL-CM-03', title: 'Pull Request Peer Review', description: 'Code changes require approval from 1 peer code owner.', procedure: '1. Open PR\n2. Peer Review\n3. Merge', status: 'active', linkedRiskIds: ['RISK-CM-02'], linkedEvidenceIds: ['EVD-CM-03', 'EVD-CM-04'], createdAt: '2024-01-12', updatedAt: '2024-01-12' },
+    { id: 'CTL-CM-02', title: 'CI/CD Automated Gates', description: 'Pipeline blocks deployment if unit tests or security scans fail.', procedure: '1. Commit code\n2. Run pipeline\n3. Pass SAST/Tests', status: 'active', automationStatus: 'autonomous', linkedRiskIds: ['RISK-CM-01', 'RISK-CM-02'], linkedEvidenceIds: ['EVD-CM-02'], createdAt: '2024-01-12', updatedAt: '2024-01-12' },
+    { id: 'CTL-CM-03', title: 'Pull Request Peer Review', description: 'Code changes require approval from 1 peer code owner.', procedure: '1. Open PR\n2. Peer Review\n3. Merge', status: 'active', automationStatus: 'autonomous', linkedRiskIds: ['RISK-CM-02'], linkedEvidenceIds: ['EVD-CM-03', 'EVD-CM-04'], createdAt: '2024-01-12', updatedAt: '2024-01-12' },
 
     // Privacy
     { id: 'CTL-PRIV-01', title: 'Automated Account Deletion', description: 'Script runs daily to identify and purge accounts marked for deletion > 30 days.', procedure: '1. Mark for deletion\n2. Wait 30 days\n3. Hard delete', status: 'active', linkedRiskIds: ['RISK-PRIV-01'], linkedEvidenceIds: ['EVD-PRIV-01'], createdAt: '2024-01-18', updatedAt: '2024-01-18' },
 
     // Access
     { id: 'CTL-ACC-01', title: 'Offboarding Automation', description: 'HR system triggers deprovisioning within 24 hours of termination date.', procedure: '1. HR update\n2. IDP Webhook\n3. Revoke access', status: 'active', linkedRiskIds: ['RISK-ACC-01'], linkedEvidenceIds: ['EVD-ACC-01'], createdAt: '2024-01-22', updatedAt: '2024-01-22' },
-    { id: 'CTL-ACC-02', title: 'Quarterly Access Review', description: 'Managers review access lists for their direct reports every 90 days.', procedure: '1. Generate list\n2. Send to manager\n3. Revoke/Keep', status: 'active', linkedRiskIds: ['RISK-ACC-02'], linkedEvidenceIds: ['EVD-ACC-02'], createdAt: '2024-01-22', updatedAt: '2024-01-22' },
+    { id: 'CTL-ACC-02', title: 'Quarterly Access Review', description: 'Managers review access lists for their direct reports every 90 days.', procedure: '1. Generate list\n2. Send to manager\n3. Revoke/Keep', status: 'active', automationStatus: 'autonomous', lastCheck: '2024-03-27T18:55:00Z', confidenceScore: 0.98, linkedRiskIds: ['RISK-ACC-02'], linkedEvidenceIds: ['EVD-ACC-02'], createdAt: '2024-01-22', updatedAt: '2024-01-22' },
 
     // Physical
     { id: 'CTL-PHYS-01', title: 'Biometric Data Center Access', description: 'Two-factor authentication (Badge + Bio) required for server room.', procedure: '1. Tap badge\n2. Scan fingerprint', status: 'active', linkedRiskIds: ['RISK-PHYS-01'], linkedEvidenceIds: [], createdAt: '2024-02-02', updatedAt: '2024-02-02' },

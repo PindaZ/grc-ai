@@ -28,7 +28,9 @@ import {
     WeatherSunnyRegular,
 } from '@fluentui/react-icons';
 import { AICommandBar } from '../molecules/AICommandBar';
+import { ClientSwitcher } from './ClientSwitcher';
 import { useApp } from '@/context/AppContext';
+import { useAgentStore } from '@/store/useAgentStore';
 import { UserRole } from '@/types';
 
 const useStyles = makeStyles({
@@ -44,9 +46,6 @@ const useStyles = makeStyles({
     commandBar: {
         flex: 1,
         maxWidth: '600px',
-    },
-    commandInput: {
-        width: '100%',
     },
     actions: {
         display: 'flex',
@@ -98,16 +97,34 @@ const mockNotifications = [
     { id: '3', title: 'New risk assessment completed', time: '2 hours ago', type: 'complete' },
 ];
 
-// ... types or mock data
-
 export function TopBar() {
     const styles = useStyles();
     const { currentRole, setCurrentRole, themeMode, toggleTheme } = useApp();
+    const agentHealth = useAgentStore(state => state.agentHealth);
 
     return (
         <header className={styles.topBar}>
-            <div className={styles.commandBar}>
+            <ClientSwitcher />
+
+            <div className={styles.commandBar} style={{ marginLeft: '24px' }}>
                 <AICommandBar />
+            </div>
+
+            <div style={{ display: 'flex', alignItems: 'center', gap: '24px', marginLeft: '24px', opacity: 0.8 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <div style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#10ba80', boxShadow: '0 0 8px #10ba80' }} />
+                    <Text size={200} weight="semibold">{agentHealth.active} Agents Active</Text>
+                </div>
+                {agentHealth.warnings > 0 && (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <div style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#fce100' }} />
+                        <Text size={200} weight="semibold">{agentHealth.warnings} Warnings</Text>
+                    </div>
+                )}
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <SparkleRegular style={{ fontSize: '14px', color: tokens.colorBrandForeground1 }} />
+                    <Text size={200} weight="semibold">{agentHealth.eventsPerMin} events/min</Text>
+                </div>
             </div>
 
             <div className={styles.actions}>

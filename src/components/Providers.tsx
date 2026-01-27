@@ -1,9 +1,10 @@
 'use client';
 
-import { FluentProvider } from '@fluentui/react-components';
+import { FluentProvider, Toaster } from '@fluentui/react-components';
 import { AppProvider, useApp } from '@/context/AppContext';
 import { useState, useEffect } from 'react';
 import { capgeminiLight, capgeminiDark } from '@/theme/capgemini';
+import { AgentEventGenerator } from './AgentEventGenerator';
 
 // Wrapper component that can access the theme from context
 function ThemeWrapper({ children }: { children: React.ReactNode }) {
@@ -21,6 +22,7 @@ function ThemeWrapper({ children }: { children: React.ReactNode }) {
     if (!mounted) {
         return (
             <FluentProvider theme={capgeminiLight}>
+                <Toaster toasterId="global-toaster" />
                 {children}
             </FluentProvider>
         );
@@ -28,6 +30,7 @@ function ThemeWrapper({ children }: { children: React.ReactNode }) {
 
     return (
         <FluentProvider theme={theme}>
+            <Toaster toasterId="global-toaster" />
             {children}
         </FluentProvider>
     );
@@ -36,6 +39,7 @@ function ThemeWrapper({ children }: { children: React.ReactNode }) {
 export function Providers({ children }: { children: React.ReactNode }) {
     return (
         <AppProvider>
+            <AgentEventGenerator />
             <ThemeWrapper>
                 {children}
             </ThemeWrapper>
