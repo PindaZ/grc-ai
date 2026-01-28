@@ -22,9 +22,10 @@ import {
 } from '@fluentui/react-components';
 import { SearchRegular, AddRegular, FilterRegular, SparkleRegular } from '@fluentui/react-icons';
 import Link from 'next/link';
-import { controls } from '@/data/fixtures';
+import { useControls } from '@/hooks/useData';
 import { GlassCard } from '@/components/ui/GlassCard';
 import { StatusBadge, PageHeader, QuickActionsBar } from '@/components/atoms';
+import { Spinner } from '@fluentui/react-components';
 
 const useStyles = makeStyles({
     page: {
@@ -44,6 +45,12 @@ const useStyles = makeStyles({
             backgroundColor: tokens.colorNeutralBackground1Hover,
         },
     },
+    loadingContainer: {
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        padding: '100px',
+    }
 });
 
 const getAgentForControl = (id: string) => {
@@ -55,6 +62,7 @@ const getAgentForControl = (id: string) => {
 
 export default function ControlsPage() {
     const styles = useStyles();
+    const { controls, isLoading } = useControls();
     const { dispatchToast } = useToastController('global-toaster');
 
     const notify = (title: string, intent: ToastIntent = 'success') => {
@@ -93,50 +101,56 @@ export default function ControlsPage() {
             </div>
 
             <GlassCard style={{ padding: '0 8px' }}>
-                <Table>
-                    <TableHeader>
-                        <TableRow>
-                            <TableHeaderCell style={{ color: tokens.colorNeutralForeground2, fontWeight: '700', padding: '24px 20px', letterSpacing: '2px', fontSize: '12px' }}>ID</TableHeaderCell>
-                            <TableHeaderCell style={{ color: tokens.colorNeutralForeground2, fontWeight: '700', padding: '24px 20px', letterSpacing: '2px', fontSize: '12px' }}>TITLE</TableHeaderCell>
-                            <TableHeaderCell style={{ color: tokens.colorNeutralForeground2, fontWeight: '700', padding: '24px 20px', letterSpacing: '2px', fontSize: '12px' }}>STATUS</TableHeaderCell>
-                            <TableHeaderCell style={{ color: tokens.colorNeutralForeground2, fontWeight: '700', padding: '24px 20px', letterSpacing: '2px', fontSize: '12px' }}>LINKS</TableHeaderCell>
-                            <TableHeaderCell style={{ color: tokens.colorNeutralForeground2, fontWeight: '700', padding: '24px 20px', letterSpacing: '2px', fontSize: '12px' }}>MONITORED BY</TableHeaderCell>
-                            <TableHeaderCell style={{ color: tokens.colorNeutralForeground2, fontWeight: '700', padding: '24px 20px', letterSpacing: '2px', fontSize: '12px' }}>EVIDENCE</TableHeaderCell>
-                        </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                        {controls.map((control) => (
-                            <TableRow key={control.id} className={styles.tableRow}>
-                                <TableCell>
-                                    <Link href={`/controls/${control.id}`}>
-                                        <Text weight="semibold" style={{ color: tokens.colorBrandForeground1 }}>
-                                            {control.id}
-                                        </Text>
-                                    </Link>
-                                </TableCell>
-                                <TableCell>
-                                    <Link href={`/controls/${control.id}`}>{control.title}</Link>
-                                </TableCell>
-                                <TableCell>
-                                    <StatusBadge status={control.status} />
-                                </TableCell>
-                                <TableCell>{control.linkedRiskIds.length}</TableCell>
-                                <TableCell>
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                        <Avatar
-                                            name={getAgentForControl(control.id)}
-                                            size={20}
-                                            color="brand"
-                                            icon={<SparkleRegular fontSize={12} />}
-                                        />
-                                        <Text size={200} weight="medium">{getAgentForControl(control.id)}</Text>
-                                    </div>
-                                </TableCell>
-                                <TableCell>{control.linkedEvidenceIds.length}</TableCell>
+                {isLoading ? (
+                    <div className={styles.loadingContainer}>
+                        <Spinner label="Loading controls from database..." />
+                    </div>
+                ) : (
+                    <Table>
+                        <TableHeader>
+                            <TableRow>
+                                <TableHeaderCell style={{ color: tokens.colorNeutralForeground2, fontWeight: '700', padding: '24px 20px', letterSpacing: '2px', fontSize: '12px' }}>ID</TableHeaderCell>
+                                <TableHeaderCell style={{ color: tokens.colorNeutralForeground2, fontWeight: '700', padding: '24px 20px', letterSpacing: '2px', fontSize: '12px' }}>TITLE</TableHeaderCell>
+                                <TableHeaderCell style={{ color: tokens.colorNeutralForeground2, fontWeight: '700', padding: '24px 20px', letterSpacing: '2px', fontSize: '12px' }}>STATUS</TableHeaderCell>
+                                <TableHeaderCell style={{ color: tokens.colorNeutralForeground2, fontWeight: '700', padding: '24px 20px', letterSpacing: '2px', fontSize: '12px' }}>LINKS</TableHeaderCell>
+                                <TableHeaderCell style={{ color: tokens.colorNeutralForeground2, fontWeight: '700', padding: '24px 20px', letterSpacing: '2px', fontSize: '12px' }}>MONITORED BY</TableHeaderCell>
+                                <TableHeaderCell style={{ color: tokens.colorNeutralForeground2, fontWeight: '700', padding: '24px 20px', letterSpacing: '2px', fontSize: '12px' }}>EVIDENCE</TableHeaderCell>
                             </TableRow>
-                        ))}
-                    </TableBody>
-                </Table>
+                        </TableHeader>
+                        <TableBody>
+                            {controls.map((control) => (
+                                <TableRow key={control.id} className={styles.tableRow}>
+                                    <TableCell>
+                                        <Link href={`/controls/${control.id}`}>
+                                            <Text weight="semibold" style={{ color: tokens.colorBrandForeground1 }}>
+                                                {control.id}
+                                            </Text>
+                                        </Link>
+                                    </TableCell>
+                                    <TableCell>
+                                        <Link href={`/controls/${control.id}`}>{control.title}</Link>
+                                    </TableCell>
+                                    <TableCell>
+                                        <StatusBadge status={control.status} />
+                                    </TableCell>
+                                    <TableCell>{control.linkedRiskIds.length}</TableCell>
+                                    <TableCell>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                            <Avatar
+                                                name={getAgentForControl(control.id)}
+                                                size={20}
+                                                color="brand"
+                                                icon={<SparkleRegular fontSize={12} />}
+                                            />
+                                            <Text size={200} weight="medium">{getAgentForControl(control.id)}</Text>
+                                        </div>
+                                    </TableCell>
+                                    <TableCell>{control.linkedEvidenceIds.length}</TableCell>
+                                </TableRow>
+                            ))}
+                        </TableBody>
+                    </Table>
+                )}
             </GlassCard>
         </div>
     );

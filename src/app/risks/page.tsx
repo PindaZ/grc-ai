@@ -25,9 +25,10 @@ import {
 import { SearchRegular, AddRegular, FilterRegular, SparkleRegular, GridRegular, ListRegular } from '@fluentui/react-icons';
 import Link from 'next/link';
 import { useState, useMemo, Fragment } from 'react';
-import { risks } from '@/data/fixtures';
+import { useRisks } from '@/hooks/useData';
 import { GlassCard } from '@/components/ui/GlassCard';
 import { StatusBadge, RiskScoreBadge, PageHeader, QuickActionsBar } from '@/components/atoms';
+import { Spinner } from '@fluentui/react-components';
 
 const useStyles = makeStyles({
     page: {
@@ -90,6 +91,12 @@ const useStyles = makeStyles({
             backgroundColor: tokens.colorNeutralBackground1Hover,
         },
     },
+    loadingContainer: {
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        padding: '100px',
+    }
 });
 
 const getHeatmapColor = (impact: number, likelihood: number) => {
@@ -102,6 +109,7 @@ const getHeatmapColor = (impact: number, likelihood: number) => {
 
 export default function RisksPage() {
     const styles = useStyles();
+    const { risks, isLoading } = useRisks();
     const [view, setView] = useState<'list' | 'heatmap'>('list');
     const [selectedImpact, setSelectedImpact] = useState<number | null>(null);
     const [selectedLikelihood, setSelectedLikelihood] = useState<number | null>(null);
@@ -186,93 +194,103 @@ export default function RisksPage() {
                 </div>
             </div>
 
-            {view === 'heatmap' && (
-                <div className={styles.heatmapContainer}>
-                    <GlassCard>
-                        <Text weight="semibold" style={{ marginBottom: tokens.spacingVerticalM, display: 'block' }}>
-                            Risk Heatmap (Impact x Likelihood)
-                        </Text>
-                        <div className={styles.heatmapGrid}>
-                            <div className={styles.heatmapLabel}>Impact ↓</div>
-                            {[1, 2, 3, 4, 5].map(l => (
-                                <div key={l} className={styles.heatmapLabel}>{l}</div>
-                            ))}
-                            {[5, 4, 3, 2, 1].map(impact => (
-                                <Fragment key={`row-${impact}`}>
-                                    <div key={`label-${impact}`} className={styles.heatmapLabel}>{impact}</div>
-                                    {[1, 2, 3, 4, 5].map(likelihood => {
-                                        const count = getRiskCount(impact, likelihood);
-                                        const isSelected = selectedImpact === impact && selectedLikelihood === likelihood;
-                                        return (
-                                            <div
-                                                key={`${impact}-${likelihood}`}
-                                                className={mergeClasses(
-                                                    styles.heatmapCell,
-                                                    isSelected && styles.selectedCell
-                                                )}
-                                                style={{ backgroundColor: getHeatmapColor(impact, likelihood) }}
-                                                onClick={() => handleCellClick(impact, likelihood)}
-                                            >
-                                                {count > 0 ? count : ''}
-                                            </div>
-                                        );
-                                    })}
-                                </Fragment>
-                            ))}
+            {isLoading ? (
+                <GlassCard>
+                    <div className={styles.loadingContainer}>
+                        <Spinner label="Loading risks from database..." />
+                    </div>
+                </GlassCard>
+            ) : (
+                <>
+                    {view === 'heatmap' && (
+                        <div className={styles.heatmapContainer}>
+                            <GlassCard>
+                                <Text weight="semibold" style={{ marginBottom: tokens.spacingVerticalM, display: 'block' }}>
+                                    Risk Heatmap (Impact x Likelihood)
+                                </Text>
+                                <div className={styles.heatmapGrid}>
+                                    <div className={styles.heatmapLabel}>Impact ↓</div>
+                                    {[1, 2, 3, 4, 5].map(l => (
+                                        <div key={l} className={styles.heatmapLabel}>{l}</div>
+                                    ))}
+                                    {[5, 4, 3, 2, 1].map(impact => (
+                                        <Fragment key={`row-${impact}`}>
+                                            <div key={`label-${impact}`} className={styles.heatmapLabel}>{impact}</div>
+                                            {[1, 2, 3, 4, 5].map(likelihood => {
+                                                const count = getRiskCount(impact, likelihood);
+                                                const isSelected = selectedImpact === impact && selectedLikelihood === likelihood;
+                                                return (
+                                                    <div
+                                                        key={`${impact}-${likelihood}`}
+                                                        className={mergeClasses(
+                                                            styles.heatmapCell,
+                                                            isSelected && styles.selectedCell
+                                                        )}
+                                                        style={{ backgroundColor: getHeatmapColor(impact, likelihood) }}
+                                                        onClick={() => handleCellClick(impact, likelihood)}
+                                                    >
+                                                        {count > 0 ? count : ''}
+                                                    </div>
+                                                );
+                                            })}
+                                        </Fragment>
+                                    ))}
+                                </div>
+                                <Text size={200} style={{ marginTop: tokens.spacingVerticalM, color: tokens.colorNeutralForeground3 }}>
+                                    Likelihood →
+                                </Text>
+                            </GlassCard>
                         </div>
-                        <Text size={200} style={{ marginTop: tokens.spacingVerticalM, color: tokens.colorNeutralForeground3 }}>
-                            Likelihood →
-                        </Text>
-                    </GlassCard>
-                </div>
-            )}
+                    )}
 
-            <GlassCard style={{ padding: '0 8px' }}>
-                <Table>
-                    <TableHeader>
-                        <TableRow>
-                            <TableHeaderCell style={{ color: tokens.colorNeutralForeground2, fontWeight: '700', padding: '24px 20px', letterSpacing: '2px', fontSize: '12px' }}>ID</TableHeaderCell>
-                            <TableHeaderCell style={{ color: tokens.colorNeutralForeground2, fontWeight: '700', padding: '24px 20px', letterSpacing: '2px', fontSize: '12px' }}>TITLE</TableHeaderCell>
-                            <TableHeaderCell style={{ color: tokens.colorNeutralForeground2, fontWeight: '700', padding: '24px 20px', letterSpacing: '2px', fontSize: '12px' }}>IMPACT</TableHeaderCell>
-                            <TableHeaderCell style={{ color: tokens.colorNeutralForeground2, fontWeight: '700', padding: '24px 20px', letterSpacing: '2px', fontSize: '12px' }}>LIKELIHOOD</TableHeaderCell>
-                            <TableHeaderCell style={{ color: tokens.colorNeutralForeground2, fontWeight: '700', padding: '24px 20px', letterSpacing: '2px', fontSize: '12px' }}>SCORE</TableHeaderCell>
-                            <TableHeaderCell style={{ color: tokens.colorNeutralForeground2, fontWeight: '700', padding: '24px 20px', letterSpacing: '2px', fontSize: '12px' }}>STATUS</TableHeaderCell>
-                            <TableHeaderCell style={{ color: tokens.colorNeutralForeground2, fontWeight: '700', padding: '24px 20px', letterSpacing: '2px', fontSize: '12px' }}>AI MONITORING</TableHeaderCell>
-                            <TableHeaderCell style={{ color: tokens.colorNeutralForeground2, fontWeight: '700', padding: '24px 20px', letterSpacing: '2px', fontSize: '12px' }}>CONTROLS</TableHeaderCell>
-                        </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                        {filteredRisks.map((risk) => (
-                            <TableRow key={risk.id} className={styles.tableRow}>
-                                <TableCell>
-                                    <Link href={`/risks/${risk.id}`}>
-                                        <Text weight="semibold" style={{ color: tokens.colorBrandForeground1 }}>
-                                            {risk.id}
-                                        </Text>
-                                    </Link>
-                                </TableCell>
-                                <TableCell>
-                                    <Link href={`/risks/${risk.id}`}>{risk.title}</Link>
-                                </TableCell>
-                                <TableCell>{risk.impact}</TableCell>
-                                <TableCell>{risk.likelihood}</TableCell>
-                                <TableCell>
-                                    <RiskScoreBadge impact={risk.impact} likelihood={risk.likelihood} showBreakdown />
-                                </TableCell>
-                                <TableCell>
-                                    <StatusBadge status={risk.status} />
-                                </TableCell>
-                                <TableCell>
-                                    <Badge appearance="tint" color="brand" icon={<SparkleRegular />}>
-                                        Constant
-                                    </Badge>
-                                </TableCell>
-                                <TableCell>{risk.linkedControlIds.length}</TableCell>
-                            </TableRow>
-                        ))}
-                    </TableBody>
-                </Table>
-            </GlassCard>
+                    <GlassCard style={{ padding: '0 8px' }}>
+                        <Table>
+                            <TableHeader>
+                                <TableRow>
+                                    <TableHeaderCell style={{ color: tokens.colorNeutralForeground2, fontWeight: '700', padding: '24px 20px', letterSpacing: '2px', fontSize: '12px' }}>ID</TableHeaderCell>
+                                    <TableHeaderCell style={{ color: tokens.colorNeutralForeground2, fontWeight: '700', padding: '24px 20px', letterSpacing: '2px', fontSize: '12px' }}>TITLE</TableHeaderCell>
+                                    <TableHeaderCell style={{ color: tokens.colorNeutralForeground2, fontWeight: '700', padding: '24px 20px', letterSpacing: '2px', fontSize: '12px' }}>IMPACT</TableHeaderCell>
+                                    <TableHeaderCell style={{ color: tokens.colorNeutralForeground2, fontWeight: '700', padding: '24px 20px', letterSpacing: '2px', fontSize: '12px' }}>LIKELIHOOD</TableHeaderCell>
+                                    <TableHeaderCell style={{ color: tokens.colorNeutralForeground2, fontWeight: '700', padding: '24px 20px', letterSpacing: '2px', fontSize: '12px' }}>SCORE</TableHeaderCell>
+                                    <TableHeaderCell style={{ color: tokens.colorNeutralForeground2, fontWeight: '700', padding: '24px 20px', letterSpacing: '2px', fontSize: '12px' }}>STATUS</TableHeaderCell>
+                                    <TableHeaderCell style={{ color: tokens.colorNeutralForeground2, fontWeight: '700', padding: '24px 20px', letterSpacing: '2px', fontSize: '12px' }}>AI MONITORING</TableHeaderCell>
+                                    <TableHeaderCell style={{ color: tokens.colorNeutralForeground2, fontWeight: '700', padding: '24px 20px', letterSpacing: '2px', fontSize: '12px' }}>CONTROLS</TableHeaderCell>
+                                </TableRow>
+                            </TableHeader>
+                            <TableBody>
+                                {filteredRisks.map((risk) => (
+                                    <TableRow key={risk.id} className={styles.tableRow}>
+                                        <TableCell>
+                                            <Link href={`/risks/${risk.id}`}>
+                                                <Text weight="semibold" style={{ color: tokens.colorBrandForeground1 }}>
+                                                    {risk.id}
+                                                </Text>
+                                            </Link>
+                                        </TableCell>
+                                        <TableCell>
+                                            <Link href={`/risks/${risk.id}`}>{risk.title}</Link>
+                                        </TableCell>
+                                        <TableCell>{risk.impact}</TableCell>
+                                        <TableCell>{risk.likelihood}</TableCell>
+                                        <TableCell>
+                                            <RiskScoreBadge impact={risk.impact} likelihood={risk.likelihood} showBreakdown />
+                                        </TableCell>
+                                        <TableCell>
+                                            <StatusBadge status={risk.status} />
+                                        </TableCell>
+                                        <TableCell>
+                                            <Badge appearance="tint" color="brand" icon={<SparkleRegular />}>
+                                                Constant
+                                            </Badge>
+                                        </TableCell>
+                                        <TableCell>{risk.linkedControlIds.length}</TableCell>
+                                    </TableRow>
+                                ))}
+                            </TableBody>
+                        </Table>
+                    </GlassCard>
+                </>
+            )}
         </div>
     );
 }

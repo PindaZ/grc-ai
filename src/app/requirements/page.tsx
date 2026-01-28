@@ -23,9 +23,10 @@ import {
 } from '@fluentui/react-components';
 import { SearchRegular, AddRegular, FilterRegular, SparkleRegular } from '@fluentui/react-icons';
 import Link from 'next/link';
-import { requirements } from '@/data/fixtures';
+import { useRequirements } from '@/hooks/useData';
 import { GlassCard } from '@/components/ui/GlassCard';
 import { PageHeader, QuickActionsBar } from '@/components/atoms';
+import { Spinner } from '@fluentui/react-components';
 
 const useStyles = makeStyles({
     page: {
@@ -98,10 +99,17 @@ const useStyles = makeStyles({
         letterSpacing: '1px',
         padding: '2px 10px',
     },
+    loadingContainer: {
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        padding: '100px',
+    }
 });
 
 export default function RequirementsPage() {
     const styles = useStyles();
+    const { requirements, isLoading } = useRequirements();
     const { dispatchToast } = useToastController('global-toaster');
 
     const notify = (title: string, intent: ToastIntent = 'success') => {
@@ -140,58 +148,64 @@ export default function RequirementsPage() {
             </div>
 
             <GlassCard style={{ padding: '0 8px' }}>
-                <Table>
-                    <TableHeader className={styles.tableHeader}>
-                        <TableRow>
-                            <TableHeaderCell>ID</TableHeaderCell>
-                            <TableHeaderCell>Title</TableHeaderCell>
-                            <TableHeaderCell>Source</TableHeaderCell>
-                            <TableHeaderCell>Status</TableHeaderCell>
-                            <TableHeaderCell>AI Coverage</TableHeaderCell>
-                            <TableHeaderCell>Linked Risks</TableHeaderCell>
-                        </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                        {requirements.map((req) => (
-                            <TableRow key={req.id} className={styles.tableRow}>
-                                <TableCell>
-                                    <Link href={`/requirements/${req.id}`}>
-                                        <Text className={styles.reqId}>
-                                            {req.id}
-                                        </Text>
-                                    </Link>
-                                </TableCell>
-                                <TableCell>
-                                    <TableCellLayout>
-                                        <Link href={`/requirements/${req.id}`} style={{ color: tokens.colorNeutralForeground1 }}>{req.title}</Link>
-                                    </TableCellLayout>
-                                </TableCell>
-                                <TableCell>
-                                    <Badge appearance="outline" style={{ borderColor: tokens.colorNeutralStroke2, color: tokens.colorNeutralForeground3 }}>{req.source}</Badge>
-                                </TableCell>
-                                <TableCell>
-                                    <Badge
-                                        appearance="filled"
-                                        color={req.status === 'active' ? 'success' : 'warning'}
-                                        className={styles.statusBadge}
-                                    >
-                                        {req.status}
-                                    </Badge>
-                                </TableCell>
-                                <TableCell>
-                                    <Badge
-                                        appearance="tint"
-                                        color={req.status === 'active' ? 'brand' : 'subtle'}
-                                        icon={<SparkleRegular />}
-                                    >
-                                        {req.status === 'active' ? '100%' : 'Analyzed'}
-                                    </Badge>
-                                </TableCell>
-                                <TableCell style={{ color: tokens.colorNeutralForeground3, textAlign: 'center' }}>{req.linkedRiskIds.length}</TableCell>
+                {isLoading ? (
+                    <div className={styles.loadingContainer}>
+                        <Spinner label="Loading requirements from database..." />
+                    </div>
+                ) : (
+                    <Table>
+                        <TableHeader className={styles.tableHeader}>
+                            <TableRow>
+                                <TableHeaderCell>ID</TableHeaderCell>
+                                <TableHeaderCell>Title</TableHeaderCell>
+                                <TableHeaderCell>Source</TableHeaderCell>
+                                <TableHeaderCell>Status</TableHeaderCell>
+                                <TableHeaderCell>AI Coverage</TableHeaderCell>
+                                <TableHeaderCell>Linked Risks</TableHeaderCell>
                             </TableRow>
-                        ))}
-                    </TableBody>
-                </Table>
+                        </TableHeader>
+                        <TableBody>
+                            {requirements.map((req) => (
+                                <TableRow key={req.id} className={styles.tableRow}>
+                                    <TableCell>
+                                        <Link href={`/requirements/${req.id}`}>
+                                            <Text className={styles.reqId}>
+                                                {req.id}
+                                            </Text>
+                                        </Link>
+                                    </TableCell>
+                                    <TableCell>
+                                        <TableCellLayout>
+                                            <Link href={`/requirements/${req.id}`} style={{ color: tokens.colorNeutralForeground1 }}>{req.title}</Link>
+                                        </TableCellLayout>
+                                    </TableCell>
+                                    <TableCell>
+                                        <Badge appearance="outline" style={{ borderColor: tokens.colorNeutralStroke2, color: tokens.colorNeutralForeground3 }}>{req.source}</Badge>
+                                    </TableCell>
+                                    <TableCell>
+                                        <Badge
+                                            appearance="filled"
+                                            color={req.status === 'active' ? 'success' : 'warning'}
+                                            className={styles.statusBadge}
+                                        >
+                                            {req.status}
+                                        </Badge>
+                                    </TableCell>
+                                    <TableCell>
+                                        <Badge
+                                            appearance="tint"
+                                            color={req.status === 'active' ? 'brand' : 'subtle'}
+                                            icon={<SparkleRegular />}
+                                        >
+                                            {req.status === 'active' ? '100%' : 'Analyzed'}
+                                        </Badge>
+                                    </TableCell>
+                                    <TableCell style={{ color: tokens.colorNeutralForeground3, textAlign: 'center' }}>{req.linkedRiskIds.length}</TableCell>
+                                </TableRow>
+                            ))}
+                        </TableBody>
+                    </Table>
+                )}
             </GlassCard>
         </div>
     );

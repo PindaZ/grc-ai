@@ -143,6 +143,7 @@ const navItems = [
     { href: '/risks', label: 'Risks', Icon: RisksIcon },
     { href: '/controls', label: 'Controls', Icon: ControlsIcon },
     { href: '/requirements', label: 'Requirements', Icon: RequirementsIcon },
+    { href: '/admin/oscal', label: 'OSCAL Admin', Icon: DataUsageRegular },
 ];
 
 export function NavSidebar() {

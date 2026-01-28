@@ -12,7 +12,8 @@ import {
 import { motion } from 'framer-motion';
 import { GlassCard } from '@/components/ui/GlassCard';
 import { AnimatedChart } from '@/components/visuals/AnimatedChart';
-import { controlActivities, controls, evidence } from '@/data/fixtures';
+import { useControls } from '@/hooks/useData';
+import { Spinner } from '@fluentui/react-components';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import {
@@ -114,6 +115,7 @@ const containerVariants = {
 export const ControlOwnerDashboard = () => {
     const styles = useStyles();
     const router = useRouter();
+    const { controls, isLoading } = useControls();
     const { dispatchToast } = useToastController('global-toaster');
 
     const notify = (title: string, intent: ToastIntent = 'success') => {
@@ -125,10 +127,24 @@ export const ControlOwnerDashboard = () => {
         );
     };
 
+    if (isLoading) {
+        return (
+            <div style={{ display: 'flex', justifyContent: 'center', padding: '100px', width: '100%' }}>
+                <Spinner label="Loading control dashboard..." />
+            </div>
+        );
+    }
+
     // Data Processing
-    // In a real app, filtering by current user ID would happen here.
-    // We'll show all pending items for the demo.
-    const myPendingActions = controlActivities.filter(a => a.status !== 'done');
+    // For now we mock controlActivities as we don't have a specific table for that,
+    // but we can use AgentEvents or mock it based on control status.
+    const myPendingActions = controls.filter(c => c.status === 'draft').map(c => ({
+        id: c.id,
+        title: `Implement ${c.title}`,
+        dueDate: new Date(Date.now() + 86400000 * 7),
+        status: 'pending'
+    }));
+
     const myControls = controls;
     const evidenceNeeded = controls.filter(c => c.linkedEvidenceIds.length === 0);
     const effectivenessScore = 87; // Mock score

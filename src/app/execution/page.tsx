@@ -15,9 +15,10 @@ import {
 import { SparkleRegular, AddRegular } from '@fluentui/react-icons';
 import Link from 'next/link';
 import { useState } from 'react';
-import { controlActivities, controls } from '@/data/fixtures';
+import { useActivities, useControls } from '@/hooks/useData';
 import { PageHeader, QuickActionsBar } from '@/components/atoms';
 import { GlassCard } from '@/components/ui/GlassCard';
+import { Spinner } from '@fluentui/react-components';
 
 const useStyles = makeStyles({
     page: {
@@ -94,7 +95,9 @@ const columns = [
 
 export default function ExecutionPage() {
     const styles = useStyles();
-    const [activities, setActivities] = useState(controlActivities);
+    const { activities, isLoading: isActLoading } = useActivities();
+    const { controls, isLoading: isCtrlLoading } = useControls();
+    const isLoading = isActLoading || isCtrlLoading;
     const { dispatchToast } = useToastController('global-toaster');
 
     const notify = (title: string, intent: ToastIntent = 'success') => {
@@ -107,12 +110,22 @@ export default function ExecutionPage() {
     };
 
     const getActivitiesForColumn = (status: string) => {
-        return activities.filter(a => a.status === status);
+        return (activities || []).filter(a => a.status === status);
     };
 
     const getControlTitle = (controlId: string) => {
-        return controls.find(c => c.id === controlId)?.title || controlId;
+        return (controls || []).find(c => c.id === controlId)?.title || controlId;
     };
+
+    if (isLoading) {
+        return (
+            <div className={styles.page}>
+                <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
+                    <Spinner label="Loading Action Center..." />
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className={styles.page}>

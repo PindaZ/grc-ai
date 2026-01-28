@@ -26,7 +26,9 @@ import {
     CheckmarkCircleRegular,
     WeatherMoonRegular,
     WeatherSunnyRegular,
+    ArrowRightRegular
 } from '@fluentui/react-icons';
+import { signOut, useSession } from 'next-auth/react';
 import { AICommandBar } from '../molecules/AICommandBar';
 import { ClientSwitcher } from './ClientSwitcher';
 import { useApp } from '@/context/AppContext';
@@ -101,6 +103,7 @@ export function TopBar() {
     const styles = useStyles();
     const { currentRole, setCurrentRole, themeMode, toggleTheme } = useApp();
     const agentHealth = useAgentStore(state => state.agentHealth);
+    const { data: session } = useSession();
 
     return (
         <header className={styles.topBar}>
@@ -178,7 +181,28 @@ export function TopBar() {
                     </MenuPopover>
                 </Menu>
 
-                <Avatar name="John Dekker" size={32} />
+                <Menu>
+                    <MenuTrigger disableButtonEnhancement>
+                        <div style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            <Text size={200} weight="semibold" style={{ color: tokens.colorNeutralForeground2 }}>
+                                {session?.user?.name || 'User'}
+                            </Text>
+                            <Avatar name={session?.user?.name || "User"} size={32} />
+                        </div>
+                    </MenuTrigger>
+                    <MenuPopover>
+                        <MenuList>
+                            <MenuItem onClick={() => { }}>Settings</MenuItem>
+                            <Divider />
+                            <MenuItem
+                                onClick={() => signOut({ callbackUrl: '/auth/signin' })}
+                                icon={<ArrowRightRegular style={{ transform: 'rotate(180deg)' }} />}
+                            >
+                                Sign Out
+                            </MenuItem>
+                        </MenuList>
+                    </MenuPopover>
+                </Menu>
             </div>
         </header>
     );

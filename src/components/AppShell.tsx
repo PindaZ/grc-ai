@@ -28,8 +28,24 @@ const useStyles = makeStyles({
     },
 });
 
+import { usePathname } from 'next/navigation';
+
 export function AppShell({ children }: { children: React.ReactNode }) {
     const styles = useStyles();
+    const pathname = usePathname();
+    const isAuthPage = pathname?.startsWith('/auth');
+
+    if (isAuthPage) {
+        return (
+            <div className={styles.container}>
+                <div className={styles.main}>
+                    <main className={styles.content}>
+                        {children}
+                    </main>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className={styles.container}>

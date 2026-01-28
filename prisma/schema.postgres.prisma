@@ -1,0 +1,174 @@
+// This is your Prisma schema file for PostgreSQL
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Requirement {
+  id          String   @id
+  title       String
+  description String
+  source      String
+  status      String   // 'active' | 'draft' | 'archived'
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  risks       Risk[]   @relation("RequirementToRisk")
+}
+
+model Risk {
+  id          String   @id
+  title       String
+  description String
+  impact      Int
+  likelihood  Int
+  status      String   // 'identified' | 'assessed' | 'mitigated' | 'accepted'
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  requirements Requirement[] @relation("RequirementToRisk")
+  controls     Control[]     @relation("RiskToControl")
+}
+
+model Control {
+  id               String   @id
+  title            String
+  description      String
+  procedure        String
+  status           String   // 'draft' | 'active' | 'deprecated'
+  automationStatus String?  // 'manual' | 'semiautonomous' | 'autonomous'
+  lastCheck        DateTime?
+  confidenceScore  Float?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  risks            Risk[]            @relation("RiskToControl")
+  evidence         Evidence[]
+  activities       ControlActivity[]
+  agentActions     AgentAction[]
+  agentEvents      AgentEvent[]
+}
+
+model ControlActivity {
+  id        String   @id @default(cuid())
+  controlId String
+  title     String
+  dueDate   DateTime
+  status    String   // 'todo' | 'in-progress' | 'evidence-submitted' | 'review' | 'done'
+  assigneeId String
+
+  control   Control @relation(fields: [controlId], references: [id])
+}
+
+model Evidence {
+  id               String   @id @default(cuid())
+  title            String
+  fileName         String
+  uploadedAt       DateTime @default(now())
+  status           String   // 'uploaded' | 'analyzing' | 'analyzed' | 'attached' | 'reviewed'
+  linkedControlId  String?
+  assignedTo       String?
+  extractedData    Json?
+  matchScore       Float?
+
+  control          Control? @relation(fields: [linkedControlId], references: [id])
+}
+
+model AgentAction {
+  id          String   @id @default(cuid())
+  controlId   String?
+  type        String   // 'suggestion' | 'decision' | 'task'
+  title       String
+  description String
+  reasoning   String
+  status      String   // 'pending' | 'accepted' | 'rejected' | 'executed'
+  timestamp   DateTime @default(now())
+
+  control     Control? @relation(fields: [controlId], references: [id])
+}
+
+model AgentEvent {
+  id        String   @id @default(cuid())
+  controlId String?
+  type      String   // 'listening' | 'analyzing' | 'action' | 'evidence' | 'alert'
+  message   String
+  timestamp DateTime @default(now())
+  details   String?
+
+  control   Control? @relation(fields: [controlId], references: [id])
+}
+
+model AutomationLogEntry {
+  id         String   @id @default(cuid())
+  timestamp  DateTime @default(now())
+  skillId    String
+  skillName  String
+  action     String
+  entityType String
+  entityId   String
+  userId     String
+  outcome    String   // 'accepted' | 'rejected' | 'partial' | 'auto-applied'
+  details    String?
+}
+
+// Auth Models
+
+model User {
+  id            String          @id @default(cuid())
+  name          String?
+  email         String?         @unique
+  emailVerified DateTime?
+  image         String?
+  accounts      Account[]
+  sessions      Session[]
+  role          String          @default("user") // 'admin', 'auditor', 'user'
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+ 
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+ 
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+ 
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+ 
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model VerificationToken {
+  identifier String
+  token      String
+  expires    DateTime
+ 
+  @@unique([identifier, token])
+}

@@ -36,13 +36,17 @@ function ThemeWrapper({ children }: { children: React.ReactNode }) {
     );
 }
 
+import { SessionProvider } from 'next-auth/react';
+
 export function Providers({ children }: { children: React.ReactNode }) {
     return (
-        <AppProvider>
-            <AgentEventGenerator />
-            <ThemeWrapper>
-                {children}
-            </ThemeWrapper>
-        </AppProvider>
+        <SessionProvider>
+            <AppProvider>
+                <AgentEventGenerator />
+                <ThemeWrapper>
+                    {children}
+                </ThemeWrapper>
+            </AppProvider>
+        </SessionProvider>
     );
 }

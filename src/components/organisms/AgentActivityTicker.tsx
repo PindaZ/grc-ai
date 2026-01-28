@@ -59,31 +59,22 @@ const useStyles = makeStyles({
     }
 });
 
-const initialActivities = [
-    { id: 1, agent: 'Access Agent', action: 'Revoked access for unauthorized user', time: '1m ago', type: 'security' },
-    { id: 2, agent: 'Evidence Agent', action: 'Auto-mapped Q3 technical logs to CTL-04', time: '5m ago', type: 'compliancy' },
-    { id: 3, agent: 'Policy Agent', action: 'Flagged non-compliant S3 bucket configuration', time: '12m ago', type: 'warning' },
-    { id: 4, agent: 'Vendor Agent', action: 'Validated SOC2 Type II for Cloud Provider', time: '24m ago', type: 'success' },
-];
+import { useAgentActivity } from '@/hooks/useData';
+import { Spinner } from '@fluentui/react-components';
+
+const formatTime = (isoString: string) => {
+    const date = new Date(isoString);
+    const now = new Date();
+    const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000);
+    if (diffInSeconds < 60) return 'Just now';
+    if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)}m ago`;
+    return `${Math.floor(diffInSeconds / 3600)}h ago`;
+};
 
 export const AgentActivityTicker = () => {
     const styles = useStyles();
-    const [activities, setActivities] = useState(initialActivities);
-
-    // Mock live updates
-    useEffect(() => {
-        const interval = setInterval(() => {
-            const newActivity = {
-                id: Date.now(),
-                agent: ['Security Agent', 'Privacy Agent', 'SOC2 Agent'][Math.floor(Math.random() * 3)],
-                action: ['Verified encryption keys', 'Anonymized user data', 'Updated audit trail'][Math.floor(Math.random() * 3)],
-                time: 'Just now',
-                type: 'success'
-            };
-            setActivities(prev => [newActivity, ...prev.slice(0, 3)]);
-        }, 8000);
-        return () => clearInterval(interval);
-    }, []);
+    const { activity, isLoading } = useAgentActivity();
+    const tickerItems = Array.isArray(activity) ? activity.slice(0, 4) : [];
 
     return (
         <div className={styles.container}>
@@ -95,30 +86,36 @@ export const AgentActivityTicker = () => {
                 <Badge appearance="tint" color="success" size="small">Live Telemetry</Badge>
             </div>
 
-            <AnimatePresence mode="popLayout">
-                {activities.map((item) => (
-                    <motion.div
-                        key={item.id}
-                        layout
-                        initial={{ opacity: 0, x: -20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        exit={{ opacity: 0, scale: 0.95 }}
-                        className={styles.tickerItem}
-                    >
-                        <Avatar
-                            name={item.agent}
-                            size={28}
-                            color="brand"
-                            icon={<SparkleRegular />}
-                        />
-                        <div className={styles.activityText}>
-                            <Text weight="semibold" style={{ color: tokens.colorBrandForeground1 }}>{item.agent}</Text>
-                            <Text style={{ marginLeft: '4px', color: tokens.colorNeutralForeground2 }}>{item.action}</Text>
-                        </div>
-                        <Text className={styles.timestamp}>{item.time}</Text>
-                    </motion.div>
-                ))}
-            </AnimatePresence>
+            {isLoading ? (
+                <div style={{ height: '200px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <Spinner size="small" />
+                </div>
+            ) : (
+                <AnimatePresence mode="popLayout">
+                    {tickerItems.map((item) => (
+                        <motion.div
+                            key={item.id}
+                            layout
+                            initial={{ opacity: 0, x: -20 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            exit={{ opacity: 0, scale: 0.95 }}
+                            className={styles.tickerItem}
+                        >
+                            <Avatar
+                                name={item.agentName}
+                                size={28}
+                                color="brand"
+                                icon={<SparkleRegular />}
+                            />
+                            <div className={styles.activityText}>
+                                <Text weight="semibold" style={{ color: tokens.colorBrandForeground1 }}>{item.agentName}</Text>
+                                <Text style={{ marginLeft: '4px', color: tokens.colorNeutralForeground2 }}>{item.action}</Text>
+                            </div>
+                            <Text className={styles.timestamp}>{formatTime(item.timestamp)}</Text>
+                        </motion.div>
+                    ))}
+                </AnimatePresence>
+            )}
         </div>
     );
 };

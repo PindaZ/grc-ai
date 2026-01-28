@@ -1,36 +1,69 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# GRC AI Platform
 
-## Getting Started
+An intelligent Governance, Risk, and Compliance (GRC) automation platform powered by Agentic AI.
 
-First, run the development server:
+## 🚀 Key Features
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+-   **Agentic AI Core**: Autonomous agents capable of reasoning, planning, and executing compliance tasks.
+-   **Neural Activity Feed**: Real-time visibility into agent operations and decision-making.
+-   **OSCAL Integration**: Native support for NIST Open Security Controls Assessment Language.
+-   **Modern Tech Stack**: Built with Next.js 15, Fluent UI (v9), and Prisma ORM.
+-   **Secure**: Role-Based Access Control (RBAC) and NextAuth.js authentication.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 🛠 Tech Stack
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+-   **Frontend**: Next.js 15 (App Router), Fluent UI React Components
+-   **Backend**: Next.js Server Actions, Prisma ORM
+-   **Database**: SQLite (Dev) / PostgreSQL (Prod)
+-   **AI Engine**: Google Gemini 1.5 Flash (via Vercel AI SDK)
+-   **Auth**: NextAuth.js v5
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## 🚦 Getting Started
 
-## Learn More
+### Prerequisites
 
-To learn more about Next.js, take a look at the following resources:
+-   Node.js 20+
+-   Google Gemini API Key
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### Installation
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+1.  Clone the repository.
+2.  Install dependencies:
+    ```bash
+    npm install
+    ```
+3.  Set up environment variables (`.env`):
+    ```env
+    DATABASE_URL="file:./dev.db"
+    GOOGLE_GENERATIVE_AI_API_KEY=your_key_here_no_quotes
+    AUTH_SECRET="your_generated_secret"
+    ```
+4.  Initialize the database:
+    ```bash
+    npx prisma generate
+    npx prisma migrate dev --name init
+    ```
+5.  Run the development server:
+    ```bash
+    npm run dev
+    ```
 
-## Deploy on Vercel
+### 🔐 Authentication (Mock Mode)
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+The current MVP uses a mock credentials provider for testing:
+-   **Email**: `demo@grc.ai`
+-   **Password**: `demo123`
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## 📂 Project Structure
+
+-   `/src/app`: Next.js App Router pages
+-   `/src/lib/agent`: AI Agent logic (Runner, Tools, Skills)
+-   `/src/components`: Fluent UI components (Atoms, Molecules, Organisms)
+-   `/prisma`: Database schema and migrations
+-   `/docs`: Architecture and planning documentation
+
+## 📄 Documentation
+
+See the `docs/` directory for detailed design docs:
+-   [MVP Roadmap](./docs/MVP_ROADMAP.md)
+-   [Changelog](./docs/CHANGELOG.md)

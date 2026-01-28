@@ -14,6 +14,8 @@ import { GlassCard } from '@/components/ui/GlassCard';
 import { AnimatedChart } from '@/components/visuals/AnimatedChart';
 import { evidence } from '@/data/fixtures';
 import { allPendingFindings } from '@/data/aiFindings';
+import { useControls, useRisks } from '@/hooks/useData';
+import { Spinner } from '@fluentui/react-components';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import {
@@ -127,6 +129,9 @@ const containerVariants = {
 export const AuditorDashboard = () => {
     const styles = useStyles();
     const router = useRouter();
+    const { risks, isLoading: isRisksLoading } = useRisks();
+    const { controls, isLoading: isCtrlLoading } = useControls(); // In case we need it
+    const isLoading = isRisksLoading || isCtrlLoading;
     const { dispatchToast } = useToastController('global-toaster');
 
     const notify = (title: string, intent: ToastIntent = 'success') => {
@@ -143,8 +148,18 @@ export const AuditorDashboard = () => {
     };
 
     // Data Processing
+    // For now, we use external fixture for 'evidence' as we don't have an API yet,
+    // but findings can come from Risks (identified/assessed status).
     const itemsToReview = evidence.filter(e => e.status === 'uploaded' || e.status === 'analyzed');
-    const openFindings = allPendingFindings.filter(f => f.status === 'pending');
+    const openFindings = risks.filter(r => r.status === 'identified' || r.status === 'assessed');
+
+    if (isLoading) {
+        return (
+            <div style={{ display: 'flex', justifyContent: 'center', padding: '100px', width: '100%' }}>
+                <Spinner label="Loading auditor dashboard..." />
+            </div>
+        );
+    }
 
     // Mock audit schedule
     const upcomingAudits = [

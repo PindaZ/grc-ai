@@ -6,6 +6,7 @@ import {
     tokens,
     Text,
     Button,
+    Input,
     shorthands,
     useToastController,
     Toast,
@@ -20,9 +21,10 @@ import {
     ShieldCheckmarkRegular,
     PulseRegular,
     SettingsRegular,
-    InfoRegular
+    InfoRegular,
+    CheckmarkCircleRegular
 } from '@fluentui/react-icons';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { GlassCard } from '@/components/ui/GlassCard';
 import { AnimatedNumber } from '@/components/atoms/AnimatedNumber';
 import { PageHeader } from '@/components/atoms';
@@ -112,10 +114,25 @@ const agents = [
     }
 ];
 
+import { useStats, useAgentActivity } from '@/hooks/useData';
+import { Spinner } from '@fluentui/react-components';
+import { useState } from 'react';
+
 export default function AgentsPage() {
     const styles = useStyles();
     const router = useRouter();
+    const { stats, isLoading } = useStats();
+    const { mutate: mutateActivity } = useAgentActivity();
     const { dispatchToast } = useToastController('global-toaster');
+    const [isExecuting, setIsExecuting] = useState(false);
+    const [lastResponse, setLastResponse] = useState<string | null>(null);
+
+    const telemetry = [
+        { label: 'Agents Active', value: stats?.agentsActive || 0, icon: <PulseRegular />, color: '#10b981', path: '#' },
+        { label: 'Total Actions (24h)', value: stats?.actions24h || 0, icon: <ShieldCheckmarkRegular />, color: tokens.colorBrandForeground1, path: '#' },
+        { label: 'Pending Human Review', value: stats?.pendingReview || 0, icon: <ArrowRightRegular />, color: '#f59e0b', path: '/execution' },
+        { label: 'System Uptime', value: stats?.systemHealth || 99.9, icon: <PulseRegular />, color: '#10b981', suffix: '%', path: '#' }
+    ];
 
     const notify = (title: string, intent: ToastIntent = 'success') => {
         dispatchToast(
@@ -137,23 +154,102 @@ export default function AgentsPage() {
                     title="Agent Command Center"
                     description="Operational Transparency: Live telemetry and neural activity feed of the autonomous digital workforce."
                 >
-                    <Button
-                        icon={<SettingsRegular />}
-                        appearance="subtle"
-                        style={{ color: tokens.colorNeutralForeground2 }}
-                        onClick={() => notify('Workforce Settings module is currently in read-only mode.')}
-                    >
-                        Workforce Settings
-                    </Button>
+                    <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                        <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+                            <Input
+                                placeholder="Instruct the neural engine (e.g. 'Analyze risk impact' or 'Scan logs')..."
+                                style={{ minWidth: '400px' }}
+                                disabled={isExecuting}
+                                onKeyDown={async (e) => {
+                                    if (e.key === 'Enter') {
+                                        const prompt = (e.currentTarget as HTMLInputElement).value;
+                                        e.currentTarget.value = '';
+                                        setIsExecuting(true);
+                                        setLastResponse(null);
+                                        notify('Neural engine processing request...', 'info');
+                                        try {
+                                            const res = await fetch('/api/agent/debug-execute', {
+                                                method: 'POST',
+                                                headers: { 'Content-Type': 'application/json' },
+                                                body: JSON.stringify({ prompt, agentId: 'Admin' })
+                                            });
+                                            const data = await res.json();
+                                            if (data.error) notify(data.error, 'error');
+                                            else {
+                                                notify('Knowledge base updated & command executed.', 'success');
+                                                setLastResponse(data.text || 'Command processed successfully, but no direct response was returned.');
+                                                // Mutate activity feed to show the new event immediately
+                                                mutateActivity();
+                                            }
+                                        } catch (err) {
+                                            notify('Neural link interrupted.', 'error');
+                                        } finally {
+                                            setIsExecuting(false);
+                                        }
+                                    }
+                                }}
+                            />
+                            {isExecuting && (
+                                <div style={{ position: 'absolute', right: '10px' }}>
+                                    <Spinner size="tiny" />
+                                </div>
+                            )}
+                        </div>
+                        <Button
+                            icon={<SettingsRegular />}
+                            appearance="subtle"
+                            style={{ color: tokens.colorNeutralForeground2 }}
+                            onClick={() => notify('Workforce Settings module is currently in read-only mode.')}
+                        >
+                            Workforce Settings
+                        </Button>
+                    </div>
+                    <div style={{ marginTop: '8px' }}>
+                        <Text size={200} style={{ color: tokens.colorNeutralForeground4 }}>
+                            <InfoRegular style={{ fontSize: '12px', marginRight: '4px', verticalAlign: 'middle' }} />
+                            Use this console for complex reasoning tasks. Use the top bar for navigation.
+                        </Text>
+                    </div>
                 </PageHeader>
 
+                <AnimatePresence>
+                    {lastResponse && (
+                        <motion.div
+                            initial={{ opacity: 0, height: 0 }}
+                            animate={{ opacity: 1, height: 'auto' }}
+                            exit={{ opacity: 0, height: 0 }}
+                            transition={{ duration: 0.4 }}
+                            style={{ marginBottom: '24px', overflow: 'hidden' }}
+                        >
+                            <GlassCard style={{ padding: '24px', position: 'relative', borderLeft: `4px solid ${tokens.colorBrandBackground}` }}>
+                                <div style={{ position: 'absolute', top: '12px', right: '12px' }}>
+                                    <Button
+                                        size="small"
+                                        appearance="subtle"
+                                        onClick={() => setLastResponse(null)}
+                                        icon={<CheckmarkCircleRegular />}
+                                    >
+                                        Dismiss
+                                    </Button>
+                                </div>
+                                <div style={{ display: 'flex', gap: '16px', alignItems: 'flex-start' }}>
+                                    <div style={{ padding: '8px', borderRadius: '8px', backgroundColor: tokens.colorBrandBackground2 }}>
+                                        <SparkleRegular style={{ fontSize: '24px', color: tokens.colorBrandForeground1 }} />
+                                    </div>
+                                    <div style={{ flex: 1 }}>
+                                        <Text size={400} weight="bold" style={{ color: tokens.colorBrandForeground1, marginBottom: '8px', display: 'block' }}>Neural Engine Response</Text>
+                                        <Text size={200} style={{ color: tokens.colorNeutralForeground2, lineHeight: '1.6', display: 'block' }}>
+                                            {lastResponse}
+                                        </Text>
+                                    </div>
+                                </div>
+                            </GlassCard>
+                        </motion.div>
+                    )}
+                </AnimatePresence>
+
                 <div className={styles.heroStats}>
-                    {[
-                        { label: 'Agents Active', value: 8, icon: <PulseRegular />, color: '#10b981', path: '#' },
-                        { label: 'Total Actions (24h)', value: 1284, icon: <ShieldCheckmarkRegular />, color: tokens.colorBrandForeground1, path: '#' },
-                        { label: 'Pending Human Review', value: 12, icon: <ArrowRightRegular />, color: '#f59e0b', path: '/execution' },
-                        { label: 'System Uptime', value: 99.9, icon: <PulseRegular />, color: '#10b981', suffix: '%', path: '#' }
-                    ].map((stat, i) => (
+                    {telemetry.map((stat, i) => (
                         <motion.div
                             key={stat.label}
                             initial={{ opacity: 0, scale: 0.9 }}
@@ -170,7 +266,11 @@ export default function AgentsPage() {
                                     <Text size={200} style={{ color: tokens.colorNeutralForeground4, fontWeight: '600', textTransform: 'uppercase' }}>{stat.label}</Text>
                                 </div>
                                 <Text size={800} weight="bold" style={{ color: tokens.colorNeutralForeground1 }}>
-                                    <AnimatedNumber value={stat.value} duration={1.5} format={(n) => `${(stat.value % 1 !== 0) ? n.toFixed(1) : Math.round(n)}${stat.suffix || ''}`} />
+                                    {isLoading ? (
+                                        <Spinner size="tiny" />
+                                    ) : (
+                                        <AnimatedNumber value={stat.value} duration={1.5} format={(n) => `${(stat.value % 1 !== 0) ? n.toFixed(1) : Math.round(n)}${stat.suffix || ''}`} />
+                                    )}
                                 </Text>
                             </GlassCard>
                         </motion.div>

@@ -13,7 +13,8 @@ import {
 import { motion } from 'framer-motion';
 import { GlassCard } from '@/components/ui/GlassCard';
 import { AnimatedChart } from '@/components/visuals/AnimatedChart';
-import { risks, controls } from '@/data/fixtures';
+import { useRisks } from '@/hooks/useData';
+import { Spinner } from '@fluentui/react-components';
 import { Risk } from '@/types';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -141,6 +142,7 @@ const containerVariants = {
 export const RiskOwnerDashboard = () => {
     const styles = useStyles();
     const router = useRouter();
+    const { risks, isLoading } = useRisks();
     const { dispatchToast } = useToastController('global-toaster');
 
     const notify = (title: string, intent: ToastIntent = 'success') => {
@@ -172,6 +174,14 @@ export const RiskOwnerDashboard = () => {
 
     // Fake trend data
     const riskTrend = [45, 42, 48, 40, 38, 35, 30, 28, 25, 22];
+
+    if (isLoading) {
+        return (
+            <div style={{ display: 'flex', justifyContent: 'center', padding: '100px', width: '100%' }}>
+                <Spinner label="Loading risk dashboard..." />
+            </div>
+        );
+    }
 
     return (
         <motion.div
